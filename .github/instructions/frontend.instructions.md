@@ -1,10 +1,11 @@
-<!-- Inspired by patterns from github/awesome-copilot React and frontend guidance -->
-
 ---
-applyTo: "**/*.js, **/*.jsx, **/*.css"
+applyTo: "**/*.js,**/*.jsx,**/*.css"
 description: "React and frontend guidelines for the Photography Portfolio"
 ---
 
+
+
+<!-- Inspired by patterns from github/awesome-copilot React and frontend guidance -->
 # Frontend Development
 
 Build the frontend with React and JavaScript.
