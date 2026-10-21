@@ -44,7 +44,7 @@ The following sections are planned but currently under construction:
 The project follows an AI-assisted development workflow:
 
 ```mermaid
-flowchart LR
+flowchart TB
 
     IDEA[Idea] --> PLAN[PLAN.md]
     PLAN --> INST[Instructions]
