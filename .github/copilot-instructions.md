@@ -68,7 +68,7 @@ The following pages may exist in the project but are currently under constructio
 - Booking / Reservation
 - Privacy
 
-Add a visual under-construction visuality to pages that are under construction. 
+Pages that are under construction should clearly display an "Under Construction" state and should not expose unfinished functionality.
 
 ## Validation
 
