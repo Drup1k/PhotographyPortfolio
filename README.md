@@ -44,7 +44,7 @@ The following sections are planned but currently under construction:
 AI-assisted development is used throughout the project:
 
 ```mermaid
-flowchart LR
+flowchart TB
     IDEA["💡 Idea"] --> PLAN["📋 Plan"]
     PLAN --> AI["🤖 AI Setup"]
     AI --> BUILD["💻 Build"]
