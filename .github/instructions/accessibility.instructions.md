@@ -1,10 +1,11 @@
-<!-- Inspired by: https://github.com/github/awesome-copilot/blob/main/instructions/a11y.instructions.md -->
-
 ---
-applyTo: "**/*.html, **/*.jsx, **/*.css"
+applyTo: "**/*.html,**/*.jsx,**/*.css"
 description: "Accessibility guidelines for the Photography Portfolio"
 ---
 
+
+
+<!-- Inspired by: https://github.com/github/awesome-copilot/blob/main/instructions/a11y.instructions.md -->
 # Accessibility
 
 Build accessible interfaces using semantic HTML whenever possible.
