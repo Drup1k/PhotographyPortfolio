@@ -1,10 +1,11 @@
-<!-- Inspired by: https://github.com/github/awesome-copilot/blob/main/instructions/csharp.instructions.md -->
-
 ---
 applyTo: "**/*.cs"
 description: "C# guidelines for the Photography Portfolio project"
 ---
 
+
+
+<!-- Inspired by: https://github.com/github/awesome-copilot/blob/main/instructions/csharp.instructions.md -->
 # C# Development
 
 Use clear, beginner-friendly and maintainable C#.
