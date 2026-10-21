@@ -41,22 +41,16 @@ The following sections are planned but currently under construction:
 
 ## Development Approach
 
-The project follows an AI-assisted development workflow:
+AI-assisted development is used throughout the project:
 
-💡 Idea
-   ↓
-📋 Plan
-   ↓
-🤖 AI Setup
-Instructions + Skills
-   ↓
-💻 Build
-Copilot + Code
-   ↓
-✅ Validate
-Review + Test
-   ↓
-📦 Git Commit
+```mermaid
+flowchart LR
+    IDEA["💡 Idea"] --> PLAN["📋 Plan"]
+    PLAN --> AI["🤖 AI Setup"]
+    AI --> BUILD["💻 Build"]
+    BUILD --> CHECK["✅ Review & Test"]
+    CHECK --> COMMIT["📦 Git Commit"]
+```
 
 ## Future Ideas
 
