@@ -43,18 +43,20 @@ The following sections are planned but currently under construction:
 
 The project follows an AI-assisted development workflow:
 
-```mermaid
-flowchart TB
-
-    IDEA[Idea] --> PLAN[PLAN.md]
-    PLAN --> INST[Instructions]
-    INST --> SKILLS[Skills]
-    SKILLS --> COPILOT[GitHub Copilot]
-    COPILOT --> CODE[Code]
-    CODE --> REVIEW[Review]
-    REVIEW --> TEST[Test]
-    TEST --> COMMIT[Git Commit]
-```
+💡 Idea
+   ↓
+📋 Plan
+   ↓
+🤖 AI Setup
+Instructions + Skills
+   ↓
+💻 Build
+Copilot + Code
+   ↓
+✅ Validate
+Review + Test
+   ↓
+📦 Git Commit
 
 ## Future Ideas
 
