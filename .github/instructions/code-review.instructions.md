@@ -1,10 +1,11 @@
-<!-- Inspired by: https://github.com/github/awesome-copilot/blob/main/instructions/code-review-generic.instructions.md -->
-
 ---
 applyTo: "**"
 description: "Code review priorities for the Photography Portfolio"
 ---
 
+
+
+<!-- Inspired by: https://github.com/github/awesome-copilot/blob/main/instructions/code-review-generic.instructions.md -->
 # Code Review
 
 When reviewing code, prioritize findings in this order:
