@@ -46,7 +46,7 @@ flowchart TB
 
     subgraph HOME_CONTENT["Home"]
         HERO["Bewegende fotogalerij in meerdere rijen, rechts naar links"]
-        GALLERY["Pauze bij hover of toetsenbordfocus, subtiele zoom"]
+        GALLERY["Muis bepaalt richting en snelheid (stilstand in het midden); buiten de galerij rustig verder in de laatste richting (standaard van rechts naar links); lichte zoom (1,18); lightbox met vorige/volgende, pijltjestoetsen, Escape, sluitknop en lus"]
         INTRO["Pauze/play-knop en rustige weergave bij verminderde beweging"]
         FEATURED["Touch: horizontaal scrollen zonder hover"]
         SOCIAL_PREVIEW["Social media in de zijbalk, placeholders"]
@@ -100,7 +100,7 @@ flowchart TB
 
 - De homepage bestaat vooral uit een grote, continu bewegende, organische fotocollage (kolommen met staande, hoge, vierkante, liggende en brede foto's op wisselende hoogtes, ongeveer 10 px tussenruimte, weinig lege ruimte).
 - Alles beweegt traag en rustig van rechts naar links, in een naadloze lus. Eén gedeelde snelheidsregeling (requestAnimationFrame) zorgt dat de beweging zacht afremt tot stilstand (ongeveer 900 ms) en weer versnelt, zonder sprongen.
-- Hover of toetsenbordfocus pauzeert de galerij; na ongeveer 200 ms wordt de foto sterk vergroot (ongeveer 1.55x, ongeveer 550 ms) met schaduw, boven de andere foto's en binnen het scherm. Klik of Enter/Spatie opent een grotere fotoweergave.
+- Hover of toetsenbordfocus pauzeert de galerij; na ongeveer 200 ms
 - Er is een zichtbare pauze/play-knop. Bij `prefers-reduced-motion` en op touchapparaten is er geen automatische beweging maar een rustig, horizontaal scrollbare weergave.
 - De pagina's Home, Portfolio, About Me en Contact hebben elk een eigen route. Services, Booking en Privacy blijven Under Construction.
 - Foto's komen uit één gegevensbestand met placeholders; echte lokale foto's en alt-teksten vervangen die later.

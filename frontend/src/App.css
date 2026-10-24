@@ -1,7 +1,7 @@
 /* ---------- Layout ---------- */
 
 .site-layout {
-  --sidebar-width: 13rem;
+  --sidebar-width: 14.5rem;
 }
 
 .skip-link {
@@ -57,7 +57,7 @@ main > :first-child {
 }
 
 .main-home {
-  overflow-x: clip;
+  overflow: clip;
 }
 
 .main-page {
@@ -77,8 +77,7 @@ main > :first-child {
   gap: 2rem;
   padding: 2.5rem 1.5rem 2rem;
   overflow-y: auto;
-  border-right: 1px solid #262628;
-  background: #151517;
+  background: #111112;
 }
 
 .sidebar a {
@@ -97,8 +96,9 @@ main > :first-child {
 .brand {
   color: #f3f0eb;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 1.7rem;
+  font-size: 1.6rem;
   font-weight: 400;
+  white-space: nowrap;
   letter-spacing: 0.03em;
   line-height: 1.2;
 }
@@ -176,9 +176,11 @@ main > :first-child {
   color: #8d8880;
 }
 
-/* A calm fade when a new page appears. */
+/* One calm fade + slide when any page appears (Home, Portfolio, About, Contact...).
+   Home starts with a hidden heading, so the effect is applied to every direct child
+   of main except the footer and the hidden heading. */
 @media (prefers-reduced-motion: no-preference) {
-  main > :first-child {
+  main > :not(.site-footer):not(.visually-hidden) {
     animation: page-fade-in 450ms ease-out;
   }
 }
@@ -217,6 +219,18 @@ main > :first-child {
 
 .text-page a {
   color: #d0b189;
+}
+
+/* About Me: heading, portrait and text share one centred column. */
+.about-page {
+  width: 100%;
+  max-width: 36rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.about-page .about-photo-placeholder {
+  margin-inline: auto;
 }
 
 .construction-label {

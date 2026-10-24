@@ -1,6 +1,6 @@
 function AboutPage() {
   return (
-    <div className="text-page">
+    <div className="text-page about-page">
       <h1 className="page-title">About Me</h1>
       <div className="about-photo-placeholder">Portrait placeholder</div>
       <p>

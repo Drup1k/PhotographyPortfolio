@@ -7,13 +7,6 @@ const mainLinks = [
   { to: '/contact', label: 'Contact' },
 ]
 
-// These pages exist, but are still under construction.
-const underConstructionLinks = [
-  { to: '/services', label: 'Services' },
-  { to: '/booking', label: 'Booking' },
-  { to: '/privacy', label: 'Privacy' },
-]
-
 const socialPlaceholders = ['Instagram', 'Pinterest', 'LinkedIn']
 
 function Sidebar({ currentPath }) {
@@ -36,19 +29,6 @@ function Sidebar({ currentPath }) {
       </nav>
 
       <div className="sidebar-extra">
-        <nav aria-label="Pages under construction">
-          <p className="small-label">Under construction</p>
-          <ul>
-            {underConstructionLinks.map((link) => (
-              <li key={link.to}>
-                <NavLink to={link.to} currentPath={currentPath}>
-                  {link.label}
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
         <div>
           <p className="small-label">Social media</p>
           <ul>

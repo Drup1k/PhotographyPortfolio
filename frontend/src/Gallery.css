@@ -28,7 +28,7 @@
 
 .photo-card.is-enlarged .photo-zoom {
   box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.55);
-  transform: translate3d(var(--shift-x, 0), var(--shift-y, 0), 0) scale(var(--scale, 1.55));
+  transform: translate3d(var(--shift-x, 0), var(--shift-y, 0), 0) scale(var(--scale, 1.18));
 }
 
 .photo-zoom img {
@@ -79,6 +79,9 @@
 
 .moving-gallery {
   --gap: 10px;
+  /* Photos are drawn at 80% of the full row height. The columns keep their top, middle
+     or bottom position inside the full row, so the layout stays loose and balanced. */
+  --photo-scale: 0.8;
   --gallery-height: clamp(24rem, calc(100svh - 8rem), 64rem);
 
   display: flex;
@@ -88,11 +91,20 @@
 }
 
 /* Hides what is outside the screen on the left and right only.
-   Vertically nothing is clipped, so an enlarged photo is never cut off. */
+   Vertically nothing is clipped, so an enlarged photo is never cut off.
+   The sidebar has exactly the page colour, so the soft fade on the left edge
+   is the only transition: no line, no band. */
 .gallery-viewport {
   width: 100%;
   overflow-x: clip;
   overflow-y: visible;
+  /* A mask also cuts off everything outside the element, so the element gets extra
+     vertical padding (cancelled by the negative margin). An enlarged photo then has
+     room to grow. Only the left edge fades, so photos fade out near the sidebar. */
+  padding-block: 25svh;
+  margin-block: -25svh;
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 3.5rem);
+  mask-image: linear-gradient(to right, transparent 0, #000 3.5rem);
 }
 
 .gallery-track {
@@ -117,7 +129,7 @@
   flex-direction: column;
   gap: var(--gap);
   width: calc(
-    (var(--gallery-height) * var(--fill) - var(--gap) * (var(--photo-count) - 1)) /
+    (var(--gallery-height) * var(--fill) * var(--photo-scale) - var(--gap) * (var(--photo-count) - 1)) /
       var(--inverse-sum)
   );
 }
@@ -185,6 +197,8 @@
 
 /* ---------- Larger photo view ---------- */
 
+/* The viewer fades in when it gets the class "is-visible" and fades out when the class
+   is removed. PhotoViewer.jsx waits for the fade-out before it closes the viewer. */
 .photo-viewer {
   max-width: none;
   max-height: none;
@@ -193,47 +207,153 @@
   color: #f3f0eb;
   background: transparent;
   margin: auto;
+  overflow: visible;
 }
 
 .photo-viewer::backdrop {
   background: rgba(8, 8, 9, 0.88);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 350ms ease-out;
 }
 
+.photo-viewer.is-visible::backdrop {
+  opacity: 1;
+}
+
+/* The frame has a fixed maximum size, so a photo never leaves the screen. */
 .photo-viewer-frame {
   width: min(90vw, calc(80vh * var(--ratio)));
   aspect-ratio: var(--ratio);
   box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transform: translateY(12px) scale(0.92);
+  transition:
+    opacity 350ms ease-out,
+    transform 350ms ease-out,
+    width 250ms ease-out,
+    aspect-ratio 250ms ease-out;
 }
 
-.photo-viewer-frame img {
+.photo-viewer.is-visible .photo-viewer-frame {
+  opacity: 1;
+  transform: none;
+}
+
+/* Closing is a little faster than opening. */
+.photo-viewer.is-closing .photo-viewer-frame,
+.photo-viewer.is-closing::backdrop {
+  transition-duration: 250ms;
+}
+
+/* Switching photos: the old photo slides a little and fades out, the new one slides in
+   from the other side. --slide (set by PhotoViewer.jsx) holds the direction. */
+.photo-viewer-frame > * {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
+  opacity: 1;
+  transition:
+    opacity 125ms ease-in,
+    transform 125ms ease-in;
+}
+
+.photo-viewer.is-swap-out .photo-viewer-frame > * {
+  opacity: 0;
+  transform: translateX(calc(var(--slide) * -1));
+}
+
+.photo-viewer.is-swap-in .photo-viewer-frame > * {
+  animation: viewer-slide-in 125ms ease-out both;
+}
+
+@keyframes viewer-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(var(--slide));
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.photo-viewer-close,
+.photo-viewer-arrow {
+  position: fixed;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid rgba(243, 240, 235, 0.25);
+  border-radius: 50%;
+  color: #f3f0eb;
+  background: rgba(21, 21, 23, 0.6);
+  backdrop-filter: blur(6px);
+  font: inherit;
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition:
+    opacity 350ms ease-out,
+    background-color 200ms ease,
+    border-color 200ms ease,
+    transform 200ms ease;
+}
+
+.photo-viewer.is-visible .photo-viewer-close,
+.photo-viewer.is-visible .photo-viewer-arrow {
+  opacity: 1;
 }
 
 .photo-viewer-close {
-  display: block;
-  margin: 1rem auto 0;
-  padding: 0.6rem 1.25rem;
-  border: 1px solid #555149;
-  border-radius: 999px;
-  color: #f3f0eb;
-  background: rgba(21, 21, 23, 0.92);
-  font: inherit;
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
-  cursor: pointer;
+  top: 1rem;
+  right: 1rem;
 }
 
-.photo-viewer-close:hover {
+.photo-viewer-arrow {
+  top: 50%;
+  margin-top: -1.375rem;
+}
+
+.photo-viewer-arrow.is-previous {
+  left: 1rem;
+}
+
+.photo-viewer-arrow.is-next {
+  right: 1rem;
+}
+
+.photo-viewer-close:hover,
+.photo-viewer-arrow:hover {
   border-color: #d0b189;
+  background: rgba(21, 21, 23, 0.9);
+  transform: scale(1.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photo-viewer::backdrop,
+  .photo-viewer-frame,
+  .photo-viewer-frame > *,
+  .photo-viewer-close,
+  .photo-viewer-arrow {
+    transition: none;
+    animation: none !important;
+  }
+
+  .photo-viewer-frame {
+    transform: none;
+  }
 }
 
 /* ---------- Portfolio: regular static masonry ---------- */
 
 .masonry {
-  column-count: 4;
+  column-count: 5;
   column-gap: 0.75rem;
 }
 
@@ -244,25 +364,29 @@
 
 @media (min-width: 1700px) {
   .masonry {
-    column-count: 5;
+    column-count: 6;
   }
 }
 
 @media (max-width: 1200px) {
   .masonry {
-    column-count: 3;
+    column-count: 4;
   }
 }
 
 @media (max-width: 900px) {
   .masonry {
     column-count: 2;
+    width: 80%;
+    margin-inline: auto;
   }
 }
 
 @media (max-width: 480px) {
   .masonry {
     column-count: 1;
+    width: 80%;
+    margin-inline: auto;
   }
 }
 

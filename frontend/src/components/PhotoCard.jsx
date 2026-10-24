@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { shapeRatios } from '../data/photos'
 
 // How much a photo grows, and how long the mouse must stay on it first.
-const ENLARGE_SCALE = 1.55
+const ENLARGE_SCALE = 1.18
 const ENLARGE_DELAY = 200
 
 // Space that is always kept free between an enlarged photo and the edge of the screen.
@@ -20,7 +20,6 @@ function PhotoCard({
   photo,
   isInteractive = false,
   isClone = false,
-  onHoverChange,
   onKeyboardFocus,
   onOpen,
 }) {
@@ -39,8 +38,12 @@ function PhotoCard({
     const box = card.getBoundingClientRect()
     const area = viewport ? viewport.getBoundingClientRect() : { left: 0, right: window.innerWidth }
 
-    const extraWidth = (box.width * (ENLARGE_SCALE - 1)) / 2
-    const extraHeight = (box.height * (ENLARGE_SCALE - 1)) / 2
+    // Tall photos could become higher than the screen, so the scale is limited.
+    const maxScale = (window.innerHeight - 2 * EDGE_MARGIN) / box.height
+    const scale = Math.max(1, Math.min(ENLARGE_SCALE, maxScale))
+
+    const extraWidth = (box.width * (scale - 1)) / 2
+    const extraHeight = (box.height * (scale - 1)) / 2
     const minLeft = Math.max(area.left, 0) + EDGE_MARGIN
     const maxRight = Math.min(area.right, window.innerWidth) - EDGE_MARGIN
     const minTop = EDGE_MARGIN
@@ -59,7 +62,7 @@ function PhotoCard({
       shiftY = maxBottom - (box.bottom + extraHeight)
     }
 
-    zoom.style.setProperty('--scale', ENLARGE_SCALE)
+    zoom.style.setProperty('--scale', scale)
     zoom.style.setProperty('--shift-x', `${shiftX}px`)
     zoom.style.setProperty('--shift-y', `${shiftY}px`)
     setIsEnlarged(true)
@@ -70,7 +73,6 @@ function PhotoCard({
     if (event.pointerType !== 'mouse') {
       return
     }
-    onHoverChange?.(true)
     clearTimeout(timerRef.current)
     timerRef.current = setTimeout(enlarge, ENLARGE_DELAY)
   }

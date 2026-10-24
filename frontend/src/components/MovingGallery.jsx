@@ -52,7 +52,8 @@ function CollageColumn({ column, photos, isClone, cardProps }) {
 }
 
 function MovingGallery({ photos }) {
-  const { viewportRef, trackRef, groupRef, setPauseReason, revealElement } = useGalleryMotion()
+  const { viewportRef, trackRef, groupRef, setPauseReason, setMousePosition, revealElement } =
+    useGalleryMotion()
   const [isPausedByUser, setIsPausedByUser] = useState(false)
   const [openPhoto, setOpenPhoto] = useState(null)
 
@@ -71,6 +72,12 @@ function MovingGallery({ photos }) {
     setOpenPhoto(null)
   }
 
+  // Step to the previous (-1) or next (1) photo, and loop around at the ends.
+  function handleStep(step) {
+    const index = photos.findIndex((photo) => photo.id === openPhoto.id)
+    setOpenPhoto(photos[(index + step + photos.length) % photos.length])
+  }
+
   function handleKeyboardFocus(element) {
     setPauseReason('focus', true)
     revealElement(element)
@@ -83,10 +90,17 @@ function MovingGallery({ photos }) {
     }
   }
 
+  // The horizontal mouse position controls the speed (the hook does the maths).
+  function handlePointerMove(event) {
+    if (event.pointerType !== 'mouse') {
+      return
+    }
+    const box = event.currentTarget.getBoundingClientRect()
+    setMousePosition((event.clientX - box.left) / box.width)
+  }
+
   const cardProps = {
-    onHoverChange: (isHovering) => setPauseReason('hover', isHovering),
-    onKeyboardFocus: handleKeyboardFocus,
-    onOpen: handleOpen,
+    onKeyboardFocus: handleKeyboardFocus,    onOpen: handleOpen,
   }
 
   // The track holds two identical groups. It moves one group to the left and then
@@ -108,7 +122,8 @@ function MovingGallery({ photos }) {
       <div
         ref={viewportRef}
         className="gallery-viewport"
-        onPointerLeave={() => setPauseReason('hover', false)}
+        onPointerMove={handlePointerMove}
+        onPointerLeave={() => setMousePosition(null)}
         onBlur={handleBlur}
       >
         <div ref={trackRef} className="gallery-track">
@@ -133,7 +148,14 @@ function MovingGallery({ photos }) {
         </div>
       </div>
 
-      {openPhoto && <PhotoViewer photo={openPhoto} onClose={handleClose} />}
+      {openPhoto && (
+        <PhotoViewer
+          photo={openPhoto}
+          onClose={handleClose}
+          onPrevious={() => handleStep(-1)}
+          onNext={() => handleStep(1)}
+        />
+      )}
     </section>
   )
 }
