@@ -1,4 +1,4 @@
-import { navigateTo } from '../routing/usePath'
+import { navigateTo, siteUrl } from '../routing/usePath'
 
 // A normal link (so it also works with right-click and "open in new tab"),
 // but a plain click changes the page without reloading the website.
@@ -16,7 +16,7 @@ function NavLink({ to, currentPath, children }) {
   }
 
   return (
-    <a href={to} onClick={handleClick} aria-current={isActive ? 'page' : undefined}>
+    <a href={siteUrl(to)} onClick={handleClick} aria-current={isActive ? 'page' : undefined}>
       {children}
     </a>
   )
