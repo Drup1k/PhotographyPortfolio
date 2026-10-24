@@ -1,26 +1,35 @@
 import { useEffect, useState } from 'react'
 
-// A very small router, so no extra package is needed.
-// It reads the address bar (for example /portfolio) and tells React when it changes.
+// On GitHub Pages, the application is hosted below /PhotographyPortfolio/.
+// In local development, BASE_URL is simply /.
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '')
 
 function readCurrentPath() {
-  // Remove a trailing slash, so "/portfolio/" and "/portfolio" are the same page.
-  return window.location.pathname.replace(/\/+$/, '') || '/'
+  const pathname = window.location.pathname
+  const pathWithoutBase =
+    basePath && (pathname === basePath || pathname.startsWith(`${basePath}/`))
+      ? pathname.slice(basePath.length)
+      : pathname
+
+  return pathWithoutBase.replace(/\/+$/, '') || '/'
 }
 
-// Changes the address bar without reloading the page.
+// Build correct links for both local development and GitHub Pages.
+export function siteUrl(path) {
+  return `${basePath}${path}`
+}
+
+// Change pages without reloading the whole application.
 export function navigateTo(path) {
   if (path === readCurrentPath()) {
     return
   }
 
-  window.history.pushState({}, '', path)
+  window.history.pushState({}, '', siteUrl(path))
   window.dispatchEvent(new PopStateEvent('popstate'))
   window.scrollTo(0, 0)
 }
 
-// Returns the current path and updates when the visitor navigates
-// (links, or the browser back and forward buttons).
 export function usePath() {
   const [path, setPath] = useState(readCurrentPath)
 
