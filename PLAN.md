@@ -14,10 +14,10 @@ Later wordt de website uitgebreid met diensten en een reservatiesysteem voor fot
 
 ### Actieve pagina's
 
-- Home
-- Portfolio
-- About Me
-- Contact
+- Home (`/`): grote bewegende fotogalerij
+- Portfolio (`/portfolio`): statische masonry fotogalerij
+- About Me (`/about`): korte introductie van de fotograaf
+- Contact (`/contact`): contactpagina
 
 ### Under Construction
 
@@ -36,7 +36,7 @@ flowchart TB
 
     SITE["📷 Photography Portfolio"]
 
-    SITE --> NAV["Hoofdnavigatie"]
+    NAV["Zijbalknavigatie links"]
 
     NAV --> HOME["Home"]
     NAV --> PORTFOLIO["Portfolio"]
@@ -45,11 +45,11 @@ flowchart TB
     NAV --> SERVICES["Services"]
 
     subgraph HOME_CONTENT["Home"]
-        HERO["Grote visuele foto-intro"]
-        GALLERY["Masonry fotogalerij"]
-        INTRO["Korte introductie fotograaf"]
-        FEATURED["Uitgelicht werk"]
-        SOCIAL_PREVIEW["Social media"]
+        HERO["Bewegende fotogalerij in meerdere rijen, rechts naar links"]
+        GALLERY["Pauze bij hover of toetsenbordfocus, subtiele zoom"]
+        INTRO["Pauze/play-knop en rustige weergave bij verminderde beweging"]
+        FEATURED["Touch: horizontaal scrollen zonder hover"]
+        SOCIAL_PREVIEW["Social media in de zijbalk, placeholders"]
     end
 
     HOME --> HERO
@@ -59,7 +59,7 @@ flowchart TB
     HOME --> SOCIAL_PREVIEW
 
     subgraph PORTFOLIO_CONTENT["Portfolio"]
-        ALLPHOTOS["Portfolio-overzicht"]
+        ALLPHOTOS["Statische masonry fotogalerij"]
         CATEGORIES["Categorieën / collecties"]
         PHOTO_DETAIL["Foto's groter bekijken"]
     end
@@ -93,6 +93,19 @@ flowchart TB
     SERVICES -. "Boek een fotoshoot" .-> BOOKING
     SITE -. "Footer" .-> PRIVACY
 ```
+
+---
+
+## Homepage en routes
+
+- De homepage bestaat vooral uit een grote, continu bewegende, organische fotocollage (kolommen met staande, hoge, vierkante, liggende en brede foto's op wisselende hoogtes, ongeveer 10 px tussenruimte, weinig lege ruimte).
+- Alles beweegt traag en rustig van rechts naar links, in een naadloze lus. Eén gedeelde snelheidsregeling (requestAnimationFrame) zorgt dat de beweging zacht afremt tot stilstand (ongeveer 900 ms) en weer versnelt, zonder sprongen.
+- Hover of toetsenbordfocus pauzeert de galerij; na ongeveer 200 ms wordt de foto sterk vergroot (ongeveer 1.55x, ongeveer 550 ms) met schaduw, boven de andere foto's en binnen het scherm. Klik of Enter/Spatie opent een grotere fotoweergave.
+- Er is een zichtbare pauze/play-knop. Bij `prefers-reduced-motion` en op touchapparaten is er geen automatische beweging maar een rustig, horizontaal scrollbare weergave.
+- De pagina's Home, Portfolio, About Me en Contact hebben elk een eigen route. Services, Booking en Privacy blijven Under Construction.
+- Foto's komen uit één gegevensbestand met placeholders; echte lokale foto's en alt-teksten vervangen die later.
+- Onderaan elke pagina staat een footer met scheidingslijn: links "Services, Booking and Privacy: Under Construction", rechts "Angelique Vi.".
+- Bij publicatie moet de hosting onbekende paden doorsturen naar `index.html`, zodat een directe refresh van bijvoorbeeld `/portfolio` werkt.
 
 ---
 
@@ -163,3 +176,4 @@ Controleer toepasselijke Belgische/EU-regels opnieuw wanneer de functie wordt ge
 - Database
 - E-mailbevestigingen
 - Beheergedeelte voor de fotograaf
+- Optioneel: interactieve 3D-fotoglobe (nog niet gepland)

@@ -1,0 +1,268 @@
+/* ---------- Photo card (used by the moving gallery and the portfolio) ---------- */
+
+.photo-card {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  aspect-ratio: var(--ratio);
+  /* After the photo has shrunk again, it may go back under its neighbours. */
+  transition: z-index 0s linear 600ms;
+}
+
+/* Only this inner layer is enlarged. The moving track has its own transform,
+   so the two never conflict. */
+.photo-zoom {
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  transform: translate3d(0, 0, 0) scale(1);
+  transition:
+    transform 550ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 550ms ease-out;
+}
+
+.photo-card.is-enlarged {
+  z-index: 20;
+  transition-delay: 0s;
+}
+
+.photo-card.is-enlarged .photo-zoom {
+  box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.55);
+  transform: translate3d(var(--shift-x, 0), var(--shift-y, 0), 0) scale(var(--scale, 1.55));
+}
+
+.photo-zoom img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-button {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: none;
+  font: inherit;
+  cursor: zoom-in;
+}
+
+.photo-button:focus-visible {
+  outline: 2px solid #d0b189;
+  outline-offset: 3px;
+}
+
+.photo-placeholder {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: flex-end;
+  padding: 0.9rem;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.tone-1 { background: linear-gradient(160deg, #2c4a52, #14242a); }
+.tone-2 { background: linear-gradient(160deg, #5a3a52, #241a2a); }
+.tone-3 { background: linear-gradient(160deg, #4a4f66, #1a1d2b); }
+.tone-4 { background: linear-gradient(160deg, #6a4a38, #2a1c14); }
+.tone-5 { background: linear-gradient(160deg, #3d5a45, #17241b); }
+.tone-6 { background: linear-gradient(160deg, #55555a, #212123); }
+
+/* ---------- Moving gallery (homepage) ---------- */
+
+.moving-gallery {
+  --gap: 10px;
+  --gallery-height: clamp(24rem, calc(100svh - 8rem), 64rem);
+
+  display: flex;
+  flex: 1;
+  align-items: center;
+  padding: 1rem 0;
+}
+
+/* Hides what is outside the screen on the left and right only.
+   Vertically nothing is clipped, so an enlarged photo is never cut off. */
+.gallery-viewport {
+  width: 100%;
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+.gallery-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+
+.gallery-group {
+  display: flex;
+  flex: none;
+  height: var(--gallery-height);
+  gap: var(--gap);
+  padding-right: var(--gap);
+}
+
+/* A column of one or two photos. The width makes the stacked photos exactly as high
+   as the column (height x fill), whatever their proportions are. */
+.collage-column {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--gap);
+  width: calc(
+    (var(--gallery-height) * var(--fill) - var(--gap) * (var(--photo-count) - 1)) /
+      var(--inverse-sum)
+  );
+}
+
+.collage-column .photo-card {
+  width: 100%;
+}
+
+.gallery-toggle {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 4.5rem;
+  z-index: 30;
+  padding: 0.6rem 1rem;
+  border: 1px solid #555149;
+  border-radius: 999px;
+  color: #f3f0eb;
+  background: rgba(21, 21, 23, 0.92);
+  font: inherit;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: border-color 200ms ease;
+}
+
+.gallery-toggle:hover {
+  border-color: #d0b189;
+}
+
+/* No automatic movement for visitors who prefer reduced motion, and no hover on
+   touch screens: the collage becomes a normal strip that can be scrolled sideways.
+   A tap on a photo opens the larger view. */
+@media (prefers-reduced-motion: reduce), (hover: none) {
+  .gallery-viewport {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .gallery-track {
+    will-change: auto;
+  }
+
+  .is-clone-group,
+  .gallery-toggle {
+    display: none;
+  }
+
+  .photo-card.is-enlarged .photo-zoom {
+    box-shadow: none;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .photo-zoom {
+    transition: none;
+  }
+}
+
+@media (max-width: 700px) {
+  .moving-gallery {
+    --gallery-height: clamp(22rem, calc(100svh - 12rem), 40rem);
+  }
+}
+
+/* ---------- Larger photo view ---------- */
+
+.photo-viewer {
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  color: #f3f0eb;
+  background: transparent;
+  margin: auto;
+}
+
+.photo-viewer::backdrop {
+  background: rgba(8, 8, 9, 0.88);
+}
+
+.photo-viewer-frame {
+  width: min(90vw, calc(80vh * var(--ratio)));
+  aspect-ratio: var(--ratio);
+  box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.6);
+}
+
+.photo-viewer-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-viewer-close {
+  display: block;
+  margin: 1rem auto 0;
+  padding: 0.6rem 1.25rem;
+  border: 1px solid #555149;
+  border-radius: 999px;
+  color: #f3f0eb;
+  background: rgba(21, 21, 23, 0.92);
+  font: inherit;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
+.photo-viewer-close:hover {
+  border-color: #d0b189;
+}
+
+/* ---------- Portfolio: regular static masonry ---------- */
+
+.masonry {
+  column-count: 4;
+  column-gap: 0.75rem;
+}
+
+.masonry .photo-card {
+  margin-bottom: 0.75rem;
+  break-inside: avoid;
+}
+
+@media (min-width: 1700px) {
+  .masonry {
+    column-count: 5;
+  }
+}
+
+@media (max-width: 1200px) {
+  .masonry {
+    column-count: 3;
+  }
+}
+
+@media (max-width: 900px) {
+  .masonry {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 480px) {
+  .masonry {
+    column-count: 1;
+  }
+}
+
