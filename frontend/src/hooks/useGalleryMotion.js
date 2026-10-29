@@ -1,36 +1,46 @@
 import { useCallback, useEffect, useRef } from 'react'
 
-// Top speed of the gallery in pixels per second (at the very edge).
-const MAX_SPEED = 500
+// Normal speed (1x) in pixels per second. The gallery always moves from right to left.
+const BASE_SPEED = 45
 
-// Part of the gallery (left and right of the centre) where nothing moves: 8% each side.
-const DEAD_ZONE = 0.08
+// Top speed of a boost, as a factor of the normal speed (2 = twice as fast).
+const BOOST_FACTOR = 2
 
-// Time (in seconds) the speed needs to follow the mouse. Short, so it feels direct.
-const SPEED_SMOOTHING = 0.07
+// A boost stays at top speed until this many milliseconds after the click ...
+const BOOST_HOLD_END = 900
 
-// Calm speed (as a factor of MAX_SPEED) when the mouse is outside the gallery.
-const AUTO_SPEED_FACTOR = 0.06
+// ... and then slows down to normal speed during this many milliseconds.
+const BOOST_SLOWDOWN_TIME = 1500
+
+// Total length of a boost in milliseconds (used to show the active state on the button).
+export const BOOST_DURATION = BOOST_HOLD_END + BOOST_SLOWDOWN_TIME
+
+// Time (in seconds) the speed needs to reach a new target. Gives a smooth acceleration.
+const SPEED_SMOOTHING = 0.15
+
+// Speed factor (1 to 3) at this moment, for a boost that started at boostStart (or null).
+// A new click only restarts the timer, so the speed never stacks beyond BOOST_FACTOR.
+function getBoostFactor(now, boostStart) {
+  if (boostStart === null) {
+    return 1
+  }
+  const elapsed = now - boostStart
+  if (elapsed < BOOST_HOLD_END) {
+    return BOOST_FACTOR
+  }
+  const progress = (elapsed - BOOST_HOLD_END) / BOOST_SLOWDOWN_TIME
+  if (progress >= 1) {
+    return 1
+  }
+  const eased = progress * progress * (3 - 2 * progress)
+  return BOOST_FACTOR - (BOOST_FACTOR - 1) * eased
+}
 
 // Visitors who prefer
 const NO_MOTION_QUERY = '(prefers-reduced-motion: reduce), (hover: none)'
 
-// Turns the mouse position (0 = left edge, 1 = right edge) into a speed factor
-// between -1 and 1. The centre gives exactly 0. Right of the centre the gallery moves
-// left (positive), left of the centre it moves right (negative).
-// The speed grows progressively (curved) towards the edges.
-function getSpeedFactor(relativeX) {
-  const offset = (relativeX - 0.5) * 2 // -1 at the left edge, 1 at the right edge
-  const distance = Math.abs(offset)
-  if (distance <= DEAD_ZONE) {
-    return 0
-  }
-  const amount = Math.min((distance - DEAD_ZONE) / (1 - DEAD_ZONE), 1)
-  return Math.sign(offset) * amount * amount
-}
-
-// Moves the gallery with ONE shared animation loop, controlled by the mouse.
-// Nothing moves by itself: the speed always follows the mouse position.
+// Moves the gallery with ONE shared animation loop, automatically from right to left.
+// The speed can be changed (multiplier) and boosted (fast-forward) without restarting.
 //
 // Everything is kept in a ref, so React does not re-render while the gallery moves.
 export function useGalleryMotion() {
@@ -41,9 +51,8 @@ export function useGalleryMotion() {
   const motion = useRef({
     position: 0, // how many pixels the track has moved to the left
     groupWidth: 0, // width of one group of photos = the distance of one full loop
-    speed: 0, // current speed factor (-1 to 1)
-    speedTarget: AUTO_SPEED_FACTOR, // speed factor wanted right now (calm drift at the start)
-    direction: 1, // last direction chosen by the mouse: 1 = right to left, -1 = left to right
+    speed: 0, // current speed in pixels per second
+    boostStart: null, // time of the last camera click, or null
     lastFrame: 0,
     frameId: null,
     isEnabled: false,
@@ -72,17 +81,18 @@ export function useGalleryMotion() {
       state.lastFrame = now
 
       // A short smoothing step, so starting and stopping is quick but never harsh.
-      const target = state.reasons.size > 0 ? 0 : state.speedTarget
+      const boost = getBoostFactor(now, state.boostStart)
+      const target = state.reasons.size > 0 ? 0 : BASE_SPEED * boost
       state.speed += (target - state.speed) * (1 - Math.exp(-seconds / SPEED_SMOOTHING))
 
-      const isStopped = target === 0 && Math.abs(state.speed) < 0.0005
+      const isStopped = target === 0 && Math.abs(state.speed) < 0.5
       if (isStopped) {
         state.speed = 0
         state.frameId = null
         return
       }
 
-      state.position += MAX_SPEED * state.speed * seconds
+      state.position += state.speed * seconds
       wrapPosition()
       applyPosition()
       state.frameId = requestAnimationFrame(runFrame)
@@ -112,24 +122,11 @@ export function useGalleryMotion() {
     [startLoop],
   )
 
-  // Called when the mouse moves over the gallery (relativeX: 0 = left, 1 = right).
-  // Pass null when the mouse leaves: the gallery then drifts calmly in the last direction.
-  const setMousePosition = useCallback(
-    (relativeX) => {
-      const state = motion.current
-      if (relativeX === null) {
-        state.speedTarget = state.direction * AUTO_SPEED_FACTOR
-      } else {
-        const factor = getSpeedFactor(relativeX)
-        if (factor !== 0) {
-          state.direction = Math.sign(factor)
-        }
-        state.speedTarget = factor
-      }
-      startLoop()
-    },
-    [startLoop],
-  )
+  // Starts a temporary speed boost: faster, a short hold, then slowly back to normal.
+  const triggerBoost = useCallback(() => {
+    motion.current.boostStart = performance.now()
+    startLoop()
+  }, [startLoop])
 
   // Moves the gallery a little, only when a photo that gets keyboard focus is outside the screen.
   const revealElement = useCallback(
@@ -170,7 +167,6 @@ export function useGalleryMotion() {
           trackRef.current.style.transform = ''
         }
       } else {
-        state.speedTarget = state.direction * AUTO_SPEED_FACTOR
         startLoop()
       }
     }
@@ -203,6 +199,13 @@ export function useGalleryMotion() {
     return () => observer.disconnect()
   }, [])
 
-  return { viewportRef, trackRef, groupRef, setPauseReason, setMousePosition, revealElement }
+  return {
+    viewportRef,
+    trackRef,
+    groupRef,
+    setPauseReason,
+    triggerBoost,
+    revealElement,
+  }
 }
 

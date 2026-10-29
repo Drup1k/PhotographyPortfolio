@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { shapeRatios } from '../data/photos'
 
 // Duration of the animations in milliseconds (keep in sync with Gallery.css).
-const CLOSE_TIME = 250
-const SWAP_TIME = 125 // out + in = about 250 ms
+const CLOSE_TIME = 200
+const SWAP_TIME = 100 // out + in = about 200 ms
 
 // A large view of one photo, using the built-in <dialog> element.
 // The browser already provides: focus inside the dialog and a backdrop.

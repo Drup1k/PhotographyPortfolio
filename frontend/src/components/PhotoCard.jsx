@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { shapeRatios } from '../data/photos'
 
 // How much a photo grows, and how long the mouse must stay on it first.
-const ENLARGE_SCALE = 1.18
+const ENLARGE_SCALE = 1.07
 const ENLARGE_DELAY = 200
 
 // Space that is always kept free between an enlarged photo and the edge of the screen.

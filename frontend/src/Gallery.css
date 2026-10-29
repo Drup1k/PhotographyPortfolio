@@ -17,8 +17,8 @@
   box-shadow: 0 0 0 rgba(0, 0, 0, 0);
   transform: translate3d(0, 0, 0) scale(1);
   transition:
-    transform 550ms cubic-bezier(0.22, 0.61, 0.36, 1),
-    box-shadow 550ms ease-out;
+    transform 225ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 225ms ease-out;
 }
 
 .photo-card.is-enlarged {
@@ -28,7 +28,7 @@
 
 .photo-card.is-enlarged .photo-zoom {
   box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.55);
-  transform: translate3d(var(--shift-x, 0), var(--shift-y, 0), 0) scale(var(--scale, 1.18));
+  transform: translate3d(var(--shift-x, 0), var(--shift-y, 0), 0) scale(var(--scale, 1.07));
 }
 
 .photo-zoom img {
@@ -78,109 +78,42 @@
 /* ---------- Moving gallery (homepage) ---------- */
 
 .moving-gallery {
-  --gap: 10px;
-  /* Photos are drawn at 80% of the full row height. The columns keep their top, middle
-     or bottom position inside the full row, so the layout stays loose and balanced. */
-  --photo-scale: 0.8;
-  --gallery-height: clamp(24rem, calc(100svh - 8rem), 64rem);
-
   display: flex;
   flex: 1;
   align-items: center;
-  padding: 1rem 0;
+  justify-content: center;
+  padding: clamp(1.4rem, 3vh, 2.2rem) clamp(1rem, 2vw, 2rem);
 }
 
-/* Hides what is outside the screen on the left and right only.
-   Vertically nothing is clipped, so an enlarged photo is never cut off.
-   The sidebar has exactly the page colour, so the soft fade on the left edge
-   is the only transition: no line, no band. */
-.gallery-viewport {
+.gallery-viewport.globe-viewport {
+  position: relative;
   width: 100%;
-  overflow-x: clip;
-  overflow-y: visible;
-  /* A mask also cuts off everything outside the element, so the element gets extra
-     vertical padding (cancelled by the negative margin). An enlarged photo then has
-     room to grow. Only the left edge fades, so photos fade out near the sidebar. */
-  padding-block: 25svh;
-  margin-block: -25svh;
-  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 3.5rem);
-  mask-image: linear-gradient(to right, transparent 0, #000 3.5rem);
+  min-height: clamp(32rem, calc(100svh - 8.4rem), 48rem);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
 }
 
-.gallery-track {
-  display: flex;
-  width: max-content;
-  will-change: transform;
+.globe-canvas {
+  width: min(84vmin, 54rem);
+  height: min(84vmin, 54rem);
 }
 
-.gallery-group {
-  display: flex;
-  flex: none;
-  height: var(--gallery-height);
-  gap: var(--gap);
-  padding-right: var(--gap);
-}
-
-/* A column of one or two photos. The width makes the stacked photos exactly as high
-   as the column (height x fill), whatever their proportions are. */
-.collage-column {
-  display: flex;
-  flex: none;
-  flex-direction: column;
-  gap: var(--gap);
-  width: calc(
-    (var(--gallery-height) * var(--fill) * var(--photo-scale) - var(--gap) * (var(--photo-count) - 1)) /
-      var(--inverse-sum)
-  );
-}
-
-.collage-column .photo-card {
+.globe-canvas canvas {
+  display: block;
   width: 100%;
+  height: 100%;
 }
 
-.gallery-toggle {
-  position: fixed;
-  right: 1.25rem;
-  bottom: 4.5rem;
-  z-index: 30;
-  padding: 0.6rem 1rem;
-  border: 1px solid #555149;
-  border-radius: 999px;
-  color: #f3f0eb;
-  background: rgba(21, 21, 23, 0.92);
-  font: inherit;
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
-  cursor: pointer;
-  transition: border-color 200ms ease;
+.globe-fallback {
+  width: min(84vmin, 54rem);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.55rem;
 }
 
-.gallery-toggle:hover {
-  border-color: #d0b189;
-}
-
-/* No automatic movement for visitors who prefer reduced motion, and no hover on
-   touch screens: the collage becomes a normal strip that can be scrolled sideways.
-   A tap on a photo opens the larger view. */
-@media (prefers-reduced-motion: reduce), (hover: none) {
-  .gallery-viewport {
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-
-  .gallery-track {
-    will-change: auto;
-  }
-
-  .is-clone-group,
-  .gallery-toggle {
-    display: none;
-  }
-
-  .photo-card.is-enlarged .photo-zoom {
-    box-shadow: none;
-    transform: none;
-  }
+.globe-fallback-item {
+  width: 100%;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -190,8 +123,18 @@
 }
 
 @media (max-width: 700px) {
-  .moving-gallery {
-    --gallery-height: clamp(22rem, calc(100svh - 12rem), 40rem);
+  .gallery-viewport.globe-viewport {
+    min-height: clamp(24rem, calc(100svh - 7rem), 34rem);
+  }
+
+  .globe-canvas,
+  .globe-fallback {
+    width: min(92vw, 30rem);
+    height: min(92vw, 30rem);
+  }
+
+  .globe-fallback {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -211,10 +154,9 @@
 }
 
 .photo-viewer::backdrop {
-  background: rgba(8, 8, 9, 0.88);
-  backdrop-filter: blur(6px);
+  background: rgba(8, 8, 9, 0.9);
   opacity: 0;
-  transition: opacity 350ms ease-out;
+  transition: opacity 225ms ease-out;
 }
 
 .photo-viewer.is-visible::backdrop {
@@ -227,12 +169,12 @@
   aspect-ratio: var(--ratio);
   box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.6);
   opacity: 0;
-  transform: translateY(12px) scale(0.92);
+  transform: translateY(8px) scale(0.95);
   transition:
-    opacity 350ms ease-out,
-    transform 350ms ease-out,
-    width 250ms ease-out,
-    aspect-ratio 250ms ease-out;
+    opacity 225ms ease-out,
+    transform 225ms ease-out,
+    width 200ms ease-out,
+    aspect-ratio 200ms ease-out;
 }
 
 .photo-viewer.is-visible .photo-viewer-frame {
@@ -243,7 +185,7 @@
 /* Closing is a little faster than opening. */
 .photo-viewer.is-closing .photo-viewer-frame,
 .photo-viewer.is-closing::backdrop {
-  transition-duration: 250ms;
+  transition-duration: 200ms;
 }
 
 /* Switching photos: the old photo slides a little and fades out, the new one slides in
@@ -255,8 +197,8 @@
   object-fit: cover;
   opacity: 1;
   transition:
-    opacity 125ms ease-in,
-    transform 125ms ease-in;
+    opacity 100ms ease-in,
+    transform 100ms ease-in;
 }
 
 .photo-viewer.is-swap-out .photo-viewer-frame > * {
@@ -265,8 +207,7 @@
 }
 
 .photo-viewer.is-swap-in .photo-viewer-frame > * {
-  animation: viewer-slide-in 125ms ease-out both;
-}
+  animation: viewer-slide-in 100ms ease-out both;}
 
 @keyframes viewer-slide-in {
   from {
@@ -291,15 +232,14 @@
   border: 1px solid rgba(243, 240, 235, 0.25);
   border-radius: 50%;
   color: #f3f0eb;
-  background: rgba(21, 21, 23, 0.6);
-  backdrop-filter: blur(6px);
+  background: rgba(21, 21, 23, 0.8);
   font: inherit;
   font-size: 1.6rem;
   line-height: 1;
   cursor: pointer;
   opacity: 0;
   transition:
-    opacity 350ms ease-out,
+    opacity 225ms ease-out,
     background-color 200ms ease,
     border-color 200ms ease,
     transform 200ms ease;
