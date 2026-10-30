@@ -4,10 +4,7 @@ import PhotoViewer from './PhotoViewer'
 import { shapeRatios } from '../data/photos'
 import { useGalleryMotion } from '../hooks/useGalleryMotion'
 
-// The collage is built from columns. Every column stacks one or two photos (numbers are
-// photo ids from photos.js). Columns have different heights and sit at the top, middle
-// or bottom, so the seams between photos do not line up. That gives an organic look.
-// fill = how much of the gallery height the column uses, align = where it sits.
+// Columns of photo ids (see photos.js). fill = share of the gallery height, align = position.
 const collageColumns = [
   { ids: [4], fill: 1, align: 'center' },
   { ids: [2, 3], fill: 1, align: 'center' },
@@ -23,8 +20,7 @@ const collageColumns = [
   { ids: [22, 23], fill: 1, align: 'center' },
 ]
 
-// One column. Its width is calculated in CSS so that the stacked photos together fill
-// the column height, while every photo keeps its own proportions.
+// One column; its width is set in CSS so the stacked photos fill the column height.
 function CollageColumn({ column, photos, isClone, cardProps }) {
   const columnPhotos = column.ids
     .map((id) => photos.find((photo) => photo.id === id))
@@ -63,7 +59,7 @@ function MovingGallery({ photos }) {
     setOpenPhoto(null)
   }
 
-  // Step to the previous (-1) or next (1) photo, and loop around at the ends.
+  // Previous (-1) or next (1) photo, looping at the ends.
   function handleStep(step) {
     const index = photos.findIndex((photo) => photo.id === openPhoto.id)
     setOpenPhoto(photos[(index + step + photos.length) % photos.length])
@@ -75,7 +71,7 @@ function MovingGallery({ photos }) {
   }
 
   function handleBlur(event) {
-    // Keep the pause while focus moves from one photo to the next.
+    // Stay paused while focus moves between photos.
     if (!event.currentTarget.contains(event.relatedTarget)) {
       setPauseReason('focus', false)
     }
@@ -94,11 +90,7 @@ function MovingGallery({ photos }) {
     onOpen: handleOpen,
   }
 
-  // The track holds two identical groups. It moves one group to the left and then
-  // starts again at the beginning. The second group looks exactly like the first,
-  // so the restart is not visible: no jump and no empty gap.
-  // Only the first group is real content; the copy is hidden from screen readers
-  // and from the keyboard.
+  // Two identical groups make the loop seamless; the copy is hidden from screen readers and keyboard.
   return (
     <section className="moving-gallery" aria-label="Photo gallery">
       <button

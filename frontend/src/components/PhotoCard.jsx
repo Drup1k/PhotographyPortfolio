@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { shapeRatios } from '../data/photos'
 
-// How long the mouse must stay on a photo before it grows.
 const ENLARGE_DELAY = 200
 
-// The zoom depends on the displayed size of the photo (its longest side compared with
-// the screen height): large photos grow a little, small photos grow more.
+// Zoom depends on photo size relative to screen height: small photos grow more.
 const LARGE_SIZE = 0.62
 const LARGE_SCALE = 1.35
 const SMALL_SIZE = 0.36
@@ -17,17 +15,11 @@ function getAdaptiveScale(box) {
   return SMALL_SCALE + (LARGE_SCALE - SMALL_SCALE) * amount
 }
 
-// Space that is always kept free between an enlarged photo and the edge of the screen.
+// Minimum space between an enlarged photo and the screen edge.
 const EDGE_MARGIN = 12
 
-// Shows one photo. While there is no real image, a placeholder is shown instead.
-//
-// The outer <figure> only reserves the space. The inner .photo-zoom is the part that
-// grows, so the enlargement never fights with the moving track.
-//
-// Without isInteractive (Portfolio page) the card is just a picture.
-// With isInteractive (Home page) it is a button: hover or keyboard focus enlarges it,
-// and a click or Enter/Space opens the larger photo view.
+// One photo, or a placeholder when there is no image.
+// With isInteractive it is a button: hover/focus enlarges it, click opens the viewer.
 function PhotoCard({
   photo,
   isInteractive = false,
@@ -42,7 +34,7 @@ function PhotoCard({
 
   useEffect(() => () => clearTimeout(timerRef.current), [])
 
-  // Grows the photo. If it would leave the screen, it is shifted back inside.
+  // Enlarges the photo and shifts it back inside the screen if needed.
   function enlarge() {
     const card = cardRef.current
     const zoom = zoomRef.current
@@ -50,14 +42,14 @@ function PhotoCard({
     const box = card.getBoundingClientRect()
     const area = viewport ? viewport.getBoundingClientRect() : { left: 0, right: window.innerWidth }
 
-    // Tall photos could become higher than the screen, so the scale is limited.
+    // Limit the scale so the photo never gets larger than the screen.
     const maxScale = Math.min(
       (window.innerHeight - 2 * EDGE_MARGIN) / box.height,
       (window.innerWidth - 2 * EDGE_MARGIN) / box.width,
     )
     const scale = Math.max(1, Math.min(getAdaptiveScale(box), maxScale))
 
-    // A fixed (desktop) sidebar must stay free, so the photo is never enlarged under it.
+    // Keep enlarged photos out from under the fixed sidebar.
     const sidebar = document.querySelector('.sidebar')
     const sidebarRight =
       sidebar && getComputedStyle(sidebar).position === 'fixed'
@@ -91,7 +83,7 @@ function PhotoCard({
   }
 
   function handlePointerEnter(event) {
-    // Only a real mouse enlarges (touch and pen use the click instead).
+    // Only a mouse hover enlarges.
     if (event.pointerType !== 'mouse') {
       return
     }
@@ -108,7 +100,7 @@ function PhotoCard({
   }
 
   function handleFocus(event) {
-    // :focus-visible is true for keyboard focus, but not for a mouse click.
+    // Only keyboard focus, not mouse clicks.
     if (event.target.matches(':focus-visible')) {
       onKeyboardFocus?.(cardRef.current)
       enlarge()

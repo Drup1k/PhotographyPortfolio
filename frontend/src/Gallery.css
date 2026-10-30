@@ -9,8 +9,7 @@
   transition: z-index 0s linear 600ms;
 }
 
-/* Only this inner layer is enlarged. The moving track has its own transform,
-   so the two never conflict. */
+/* Only this layer scales; the track has its own transform. */
 .photo-zoom {
   width: 100%;
   height: 100%;
@@ -92,16 +91,12 @@
   padding: 1rem 0;
 }
 
-/* Hides what is outside the screen on the left and right only.
-   Vertically nothing is clipped, so an enlarged photo is never cut off.
-   Photos move behind the transparent sidebar and smoothly fade out. */
+/* Clips left/right only and fades photos out behind the sidebar. */
 .gallery-viewport {
   width: 100%;
   overflow-x: clip;
   overflow-y: visible;
-  /* A mask also cuts off everything outside the element, so the element gets extra
-     vertical padding (cancelled by the negative margin). An enlarged photo then has
-     room to grow. Left side fades across the sidebar width for a soft transition. */
+  /* Extra vertical room so the mask does not cut off enlarged photos. */
   padding-block: 25svh;
   margin-block: -25svh;
   -webkit-mask-image: linear-gradient(
@@ -138,8 +133,7 @@
   padding-right: var(--gap);
 }
 
-/* A column of one or two photos. The width makes the stacked photos exactly as high
-   as the column (height x fill), whatever their proportions are. */
+/* Column width makes the stacked photos fill the column height. */
 .collage-column {
   display: flex;
   flex: none;
@@ -195,9 +189,7 @@
   right: 1rem;
 }
 
-/* No automatic movement for visitors who prefer reduced motion, and no hover on
-   touch screens: the collage becomes a normal strip that can be scrolled sideways.
-   A tap on a photo opens the larger view. */
+/* Reduced motion / touch: no auto movement, strip scrolls sideways. */
 @media (prefers-reduced-motion: reduce), (hover: none) {
   .gallery-viewport {
     overflow-x: auto;
@@ -248,8 +240,7 @@
 
 /* ---------- Larger photo view ---------- */
 
-/* The viewer fades in when it gets the class "is-visible" and fades out when the class
-   is removed. PhotoViewer.jsx waits for the fade-out before it closes the viewer. */
+/* Fades with the "is-visible" class; PhotoViewer.jsx waits for the fade-out. */
 .photo-viewer {
   max-width: none;
   max-height: none;
@@ -297,8 +288,7 @@
   transition-duration: 250ms;
 }
 
-/* Switching photos: the old photo slides a little and fades out, the new one slides in
-   from the other side. --slide (set by PhotoViewer.jsx) holds the direction. */
+/* Photo switch animation; --slide (from PhotoViewer.jsx) sets the direction. */
 .photo-viewer-frame > * {
   display: block;
   width: 100%;

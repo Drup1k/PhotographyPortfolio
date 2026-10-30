@@ -179,9 +179,7 @@ main > :first-child {
   color: #8d8880;
 }
 
-/* One calm fade + slide when any page appears (Home, Portfolio, About, Contact...).
-   Home starts with a hidden heading, so the effect is applied to every direct child
-   of main except the footer and the hidden heading. */
+/* Fade + slide on page load, for all main children except footer and hidden heading. */
 @media (prefers-reduced-motion: no-preference) {
   main > :not(.site-footer):not(.visually-hidden) {
     animation: page-fade-in 450ms ease-out;

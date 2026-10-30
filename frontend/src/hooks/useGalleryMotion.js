@@ -4,9 +4,7 @@ const DRIFT_SPEED = 32
 const NUDGE_SMOOTHING = 0.28
 const NO_MOTION_QUERY = '(prefers-reduced-motion: reduce), (hover: none)'
 
-// Moves the gallery with one shared loop.
-// Default: slow drift to the left. Arrow clicks smoothly move half a viewport width
-// in the chosen direction and continue drifting slowly in that direction.
+// Slow drift to the left; arrow clicks nudge half a viewport and set the drift direction.
 export function useGalleryMotion() {
   const viewportRef = useRef(null)
   const trackRef = useRef(null)

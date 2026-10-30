@@ -1,5 +1,6 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
+import process from 'node:process'
 
 // Use the repository subpath only when publishing to GitHub Pages.
 // Local development still works at http://localhost:5173/.
