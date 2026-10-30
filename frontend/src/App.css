@@ -1,7 +1,7 @@
 /* ---------- Layout ---------- */
 
 .site-layout {
-  --sidebar-width: 14.5rem;
+  --sidebar-width: 11.5rem;
 }
 
 .skip-link {
@@ -57,6 +57,8 @@ main > :first-child {
 }
 
 .main-home {
+  margin-left: 0;
+  padding-left: var(--sidebar-width);
   overflow: clip;
 }
 
@@ -74,15 +76,16 @@ main > :first-child {
   width: var(--sidebar-width);
   flex-direction: column;
   justify-content: space-between;
-  gap: 2rem;
-  padding: 2.5rem 1.5rem 2rem;
+  gap: 1.8rem;
+  padding: 2.25rem 1.05rem 1.75rem;
   overflow-y: auto;
-  background: #111112;
+  background: transparent;
 }
 
 .sidebar a {
   color: #b1aca3;
   text-decoration: none;
+  text-shadow: 0 1px 6px rgba(7, 7, 8, 0.6);
   transition:
     color 250ms ease,
     transform 250ms ease;
@@ -96,7 +99,7 @@ main > :first-child {
 .brand {
   color: #f3f0eb;
   font-family: Georgia, 'Times New Roman', serif;
-  font-size: 1.6rem;
+  font-size: 1.45rem;
   font-weight: 400;
   white-space: nowrap;
   letter-spacing: 0.03em;
@@ -260,8 +263,10 @@ main > :first-child {
 /* ---------- Mobile: the sidebar becomes a compact top bar ---------- */
 
 @media (max-width: 700px) {
-  main {
+  main,
+  .main-home {
     margin-left: 0;
+    padding-left: 0;
   }
 
   .sidebar {
@@ -274,8 +279,7 @@ main > :first-child {
     gap: 0.6rem 1.5rem;
     padding: 0.9rem 1rem;
     overflow-y: visible;
-    border-right: 0;
-    border-bottom: 1px solid #262628;
+    border: 0;
   }
 
   .brand {

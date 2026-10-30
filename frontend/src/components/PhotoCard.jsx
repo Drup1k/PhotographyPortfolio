@@ -1,9 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
 import { shapeRatios } from '../data/photos'
 
-// How much a photo grows, and how long the mouse must stay on it first.
-const ENLARGE_SCALE = 1.18
+// How long the mouse must stay on a photo before it grows.
 const ENLARGE_DELAY = 200
+
+// The zoom depends on the displayed size of the photo (its longest side compared with
+// the screen height): large photos grow a little, small photos grow more.
+const LARGE_SIZE = 0.62
+const LARGE_SCALE = 1.35
+const SMALL_SIZE = 0.36
+const SMALL_SCALE = 1.9
+
+function getAdaptiveScale(box) {
+  const size = Math.max(box.width, box.height) / window.innerHeight
+  const amount = Math.min(Math.max((size - SMALL_SIZE) / (LARGE_SIZE - SMALL_SIZE), 0), 1)
+  return SMALL_SCALE + (LARGE_SCALE - SMALL_SCALE) * amount
+}
 
 // Space that is always kept free between an enlarged photo and the edge of the screen.
 const EDGE_MARGIN = 12
@@ -39,12 +51,22 @@ function PhotoCard({
     const area = viewport ? viewport.getBoundingClientRect() : { left: 0, right: window.innerWidth }
 
     // Tall photos could become higher than the screen, so the scale is limited.
-    const maxScale = (window.innerHeight - 2 * EDGE_MARGIN) / box.height
-    const scale = Math.max(1, Math.min(ENLARGE_SCALE, maxScale))
+    const maxScale = Math.min(
+      (window.innerHeight - 2 * EDGE_MARGIN) / box.height,
+      (window.innerWidth - 2 * EDGE_MARGIN) / box.width,
+    )
+    const scale = Math.max(1, Math.min(getAdaptiveScale(box), maxScale))
+
+    // A fixed (desktop) sidebar must stay free, so the photo is never enlarged under it.
+    const sidebar = document.querySelector('.sidebar')
+    const sidebarRight =
+      sidebar && getComputedStyle(sidebar).position === 'fixed'
+        ? sidebar.getBoundingClientRect().right
+        : 0
 
     const extraWidth = (box.width * (scale - 1)) / 2
     const extraHeight = (box.height * (scale - 1)) / 2
-    const minLeft = Math.max(area.left, 0) + EDGE_MARGIN
+    const minLeft = Math.max(area.left, 0, sidebarRight) + EDGE_MARGIN
     const maxRight = Math.min(area.right, window.innerWidth) - EDGE_MARGIN
     const minTop = EDGE_MARGIN
     const maxBottom = window.innerHeight - EDGE_MARGIN

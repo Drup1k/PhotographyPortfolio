@@ -1,53 +1,26 @@
 import { useCallback, useEffect, useRef } from 'react'
 
-// Top speed of the gallery in pixels per second (at the very edge).
-const MAX_SPEED = 500
-
-// Part of the gallery (left and right of the centre) where nothing moves: 8% each side.
-const DEAD_ZONE = 0.08
-
-// Time (in seconds) the speed needs to follow the mouse. Short, so it feels direct.
-const SPEED_SMOOTHING = 0.07
-
-// Calm speed (as a factor of MAX_SPEED) when the mouse is outside the gallery.
-const AUTO_SPEED_FACTOR = 0.06
-
-// Visitors who prefer
+const DRIFT_SPEED = 32
+const NUDGE_SMOOTHING = 0.28
 const NO_MOTION_QUERY = '(prefers-reduced-motion: reduce), (hover: none)'
 
-// Turns the mouse position (0 = left edge, 1 = right edge) into a speed factor
-// between -1 and 1. The centre gives exactly 0. Right of the centre the gallery moves
-// left (positive), left of the centre it moves right (negative).
-// The speed grows progressively (curved) towards the edges.
-function getSpeedFactor(relativeX) {
-  const offset = (relativeX - 0.5) * 2 // -1 at the left edge, 1 at the right edge
-  const distance = Math.abs(offset)
-  if (distance <= DEAD_ZONE) {
-    return 0
-  }
-  const amount = Math.min((distance - DEAD_ZONE) / (1 - DEAD_ZONE), 1)
-  return Math.sign(offset) * amount * amount
-}
-
-// Moves the gallery with ONE shared animation loop, controlled by the mouse.
-// Nothing moves by itself: the speed always follows the mouse position.
-//
-// Everything is kept in a ref, so React does not re-render while the gallery moves.
+// Moves the gallery with one shared loop.
+// Default: slow drift to the left. Arrow clicks smoothly move half a viewport width
+// in the chosen direction and continue drifting slowly in that direction.
 export function useGalleryMotion() {
   const viewportRef = useRef(null)
   const trackRef = useRef(null)
   const groupRef = useRef(null)
 
   const motion = useRef({
-    position: 0, // how many pixels the track has moved to the left
-    groupWidth: 0, // width of one group of photos = the distance of one full loop
-    speed: 0, // current speed factor (-1 to 1)
-    speedTarget: AUTO_SPEED_FACTOR, // speed factor wanted right now (calm drift at the start)
-    direction: 1, // last direction chosen by the mouse: 1 = right to left, -1 = left to right
+    position: 0,
+    groupWidth: 0,
+    driftDirection: 1, // 1 = move left, -1 = move right
+    nudgeRemaining: 0,
     lastFrame: 0,
     frameId: null,
     isEnabled: false,
-    reasons: new Set(), // why the gallery is paused: 'user', 'focus', 'viewer'
+    reasons: new Set(), // pause reasons: 'focus', 'viewer'
   })
 
   const applyPosition = useCallback(() => {
@@ -56,8 +29,6 @@ export function useGalleryMotion() {
     }
   }, [])
 
-  // Keeps the position between 0 and one group width. The second group looks exactly
-  // like the first, so jumping by one group width is not visible, in both directions.
   const wrapPosition = useCallback(() => {
     const state = motion.current
     if (state.groupWidth > 0) {
@@ -71,21 +42,29 @@ export function useGalleryMotion() {
       const seconds = Math.min(now - state.lastFrame, 50) / 1000
       state.lastFrame = now
 
-      // A short smoothing step, so starting and stopping is quick but never harsh.
-      const target = state.reasons.size > 0 ? 0 : state.speedTarget
-      state.speed += (target - state.speed) * (1 - Math.exp(-seconds / SPEED_SMOOTHING))
+      if (state.reasons.size === 0) {
+        const drift = DRIFT_SPEED * state.driftDirection * seconds
+        let nudge = 0
 
-      const isStopped = target === 0 && Math.abs(state.speed) < 0.0005
-      if (isStopped) {
-        state.speed = 0
-        state.frameId = null
-        return
+        if (Math.abs(state.nudgeRemaining) > 0.25) {
+          nudge = state.nudgeRemaining * (1 - Math.exp(-seconds / NUDGE_SMOOTHING))
+          state.nudgeRemaining -= nudge
+        } else {
+          state.nudgeRemaining = 0
+        }
+
+        state.position += drift + nudge
+        wrapPosition()
+        applyPosition()
       }
 
-      state.position += MAX_SPEED * state.speed * seconds
-      wrapPosition()
-      applyPosition()
-      state.frameId = requestAnimationFrame(runFrame)
+      const isPaused = state.reasons.size > 0
+      const hasNudge = Math.abs(state.nudgeRemaining) > 0.25
+      if (state.isEnabled && (!isPaused || hasNudge)) {
+        state.frameId = requestAnimationFrame(runFrame)
+      } else {
+        state.frameId = null
+      }
     },
     [applyPosition, wrapPosition],
   )
@@ -98,7 +77,6 @@ export function useGalleryMotion() {
     }
   }, [runFrame])
 
-  // Pause or continue for one reason. The gallery only moves when there is no reason left.
   const setPauseReason = useCallback(
     (reason, isActive) => {
       const state = motion.current
@@ -112,26 +90,25 @@ export function useGalleryMotion() {
     [startLoop],
   )
 
-  // Called when the mouse moves over the gallery (relativeX: 0 = left, 1 = right).
-  // Pass null when the mouse leaves: the gallery then drifts calmly in the last direction.
-  const setMousePosition = useCallback(
-    (relativeX) => {
+  // direction: 1 = move left, -1 = move right
+  const setDirectionAndNudge = useCallback(
+    (direction) => {
       const state = motion.current
-      if (relativeX === null) {
-        state.speedTarget = state.direction * AUTO_SPEED_FACTOR
-      } else {
-        const factor = getSpeedFactor(relativeX)
-        if (factor !== 0) {
-          state.direction = Math.sign(factor)
-        }
-        state.speedTarget = factor
+      const nextDirection = direction >= 0 ? -1 : 1
+      const nudgeDistance = (viewportRef.current?.clientWidth ?? 600) * 0.5
+
+      if (Math.sign(state.nudgeRemaining) !== 0 && Math.sign(state.nudgeRemaining) !== nextDirection) {
+        state.nudgeRemaining = 0
       }
+
+      state.driftDirection = nextDirection
+      state.nudgeRemaining += nextDirection * nudgeDistance
       startLoop()
     },
     [startLoop],
   )
 
-  // Moves the gallery a little, only when a photo that gets keyboard focus is outside the screen.
+  // Moves the gallery a little when keyboard focus lands on a photo outside the viewport.
   const revealElement = useCallback(
     (element) => {
       if (!viewportRef.current) {
@@ -152,7 +129,6 @@ export function useGalleryMotion() {
     [applyPosition, wrapPosition],
   )
 
-  // Start and stop the loop, depending on the screen and the visitor's settings.
   useEffect(() => {
     const state = motion.current
     const query = window.matchMedia(NO_MOTION_QUERY)
@@ -165,12 +141,11 @@ export function useGalleryMotion() {
           state.frameId = null
         }
         state.position = 0
-        state.speed = 0
+        state.nudgeRemaining = 0
         if (trackRef.current) {
           trackRef.current.style.transform = ''
         }
       } else {
-        state.speedTarget = state.direction * AUTO_SPEED_FACTOR
         startLoop()
       }
     }
@@ -187,7 +162,6 @@ export function useGalleryMotion() {
     }
   }, [startLoop])
 
-  // Remember
   useEffect(() => {
     const group = groupRef.current
     if (!group) {
@@ -203,6 +177,6 @@ export function useGalleryMotion() {
     return () => observer.disconnect()
   }, [])
 
-  return { viewportRef, trackRef, groupRef, setPauseReason, setMousePosition, revealElement }
+  return { viewportRef, trackRef, groupRef, setPauseReason, setDirectionAndNudge, revealElement }
 }
 

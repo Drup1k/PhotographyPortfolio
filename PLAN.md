@@ -14,7 +14,7 @@ Later wordt de website uitgebreid met diensten en een reservatiesysteem voor fot
 
 ### Actieve pagina's
 
-- Home (`/`): grote bewegende fotogalerij
+- Home (`/`): grote bewegende fotocollage
 - Portfolio (`/portfolio`): statische masonry fotogalerij
 - About Me (`/about`): korte introductie van de fotograaf
 - Contact (`/contact`): contactpagina
@@ -45,10 +45,10 @@ flowchart TB
     NAV --> SERVICES["Services"]
 
     subgraph HOME_CONTENT["Home"]
-        HERO["Bewegende fotogalerij in meerdere rijen, rechts naar links"]
-        GALLERY["Muis bepaalt richting en snelheid (stilstand in het midden); buiten de galerij rustig verder in de laatste richting (standaard van rechts naar links); lichte zoom (1,18); lightbox met vorige/volgende, pijltjestoetsen, Escape, sluitknop en lus"]
-        INTRO["Pauze/play-knop en rustige weergave bij verminderde beweging"]
-        FEATURED["Touch: horizontaal scrollen zonder hover"]
+        HERO["Bewegende fotocollage: kolommen met 1 tot 3 foto's van verschillende grootte, boven en onder uitgelijnd"]
+        GALLERY["Trage drift naar links; pijlen ←/→ linksboven en rechtsboven verschuiven de collage een halve schermbreedte en bepalen de driftrichting; geen muisbesturing; foto's vervagen links (achter de zijbalk) en rechts; lightbox met vorige/volgende, pijltjestoetsen, Escape, sluitknop en lus"]
+        INTRO["Adaptieve hover-zoom: grote foto's ca. 1,05×, middelgroot matig, kleine ca. 1,5×; vergrote foto blijft binnen het scherm"]
+        FEATURED["Bij verminderde beweging of touch: horizontaal scrollbare strook zonder pijlen en zonder hover"]
         SOCIAL_PREVIEW["Social media in de zijbalk, placeholders"]
     end
 
@@ -98,10 +98,11 @@ flowchart TB
 
 ## Homepage en routes
 
-- De homepage bestaat vooral uit een grote, continu bewegende, organische fotocollage (kolommen met staande, hoge, vierkante, liggende en brede foto's op wisselende hoogtes, ongeveer 10 px tussenruimte, weinig lege ruimte).
-- Alles beweegt traag en rustig van rechts naar links, in een naadloze lus. Eén gedeelde snelheidsregeling (requestAnimationFrame) zorgt dat de beweging zacht afremt tot stilstand (ongeveer 900 ms) en weer versnelt, zonder sprongen.
-- Hover of toetsenbordfocus pauzeert de galerij; na ongeveer 200 ms
-- Er is een zichtbare pauze/play-knop. Bij `prefers-reduced-motion` en op touchapparaten is er geen automatische beweging maar een rustig, horizontaal scrollbare weergave.
+- De homepage bestaat vooral uit een grote, bewegende, organische fotocollage in een naadloze lus: kolommen met 1, 2 of 3 foto's (staand, hoog, vierkant, liggend en breed) van verschillende grootte, ongeveer 10 px tussenruimte, alle kolommen boven en onder uitgelijnd en weinig lege ruimte.
+- De collage drijft standaard traag naar links (naadloze lus, één gedeelde requestAnimationFrame-lus, zonder sprongen). Subtiele pijlknoppen ← en → linksboven en rechtsboven verschuiven de collage vloeiend een halve schermbreedte in die richting; daarna drijft ze traag verder in dezelfde richting. Elke klik herhaalt dit. Er is geen pauze/play-knop en geen besturing met de muispositie.
+- De zijbalk is smal en transparant, zonder rand. Foto's vervagen geleidelijk links (achter de zijbalk) en rechts aan de rand van het scherm.
+- Hover (na ongeveer 200 ms) of toetsenbordfocus vergroot een foto in verhouding tot de getoonde grootte: grote foto's weinig (ca. 1,05×), middelgrote matig, kleine foto's sterk (tot ca. 1,5×). Een vergrote foto blijft volledig binnen het scherm en buiten de zijbalk. Toetsenbordfocus of geopende lightbox pauzeert de beweging; klik/tap opent de lightbox.
+- Bij `prefers-reduced-motion` en op touchapparaten is er geen automatische beweging, geen hover en geen pijlknoppen, maar een rustige, horizontaal scrollbare weergave.
 - De pagina's Home, Portfolio, About Me en Contact hebben elk een eigen route. Services, Booking en Privacy blijven Under Construction.
 - Foto's komen uit één gegevensbestand met placeholders; echte lokale foto's en alt-teksten vervangen die later.
 - Onderaan elke pagina staat een footer met scheidingslijn: links "Services, Booking and Privacy: Under Construction", rechts "Angelique Vi.".

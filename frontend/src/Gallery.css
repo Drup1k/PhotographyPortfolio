@@ -28,7 +28,7 @@
 
 .photo-card.is-enlarged .photo-zoom {
   box-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.55);
-  transform: translate3d(var(--shift-x, 0), var(--shift-y, 0), 0) scale(var(--scale, 1.18));
+  transform: translate3d(var(--shift-x, 0), var(--shift-y, 0), 0) scale(var(--scale, 1.1));
 }
 
 .photo-zoom img {
@@ -79,32 +79,49 @@
 
 .moving-gallery {
   --gap: 10px;
-  /* Photos are drawn at 80% of the full row height. The columns keep their top, middle
-     or bottom position inside the full row, so the layout stays loose and balanced. */
-  --photo-scale: 0.8;
+  /* Photos stay varied and staggered, but fill more of the gallery height. */
+  --photo-scale: 1;
   --gallery-height: clamp(24rem, calc(100svh - 8rem), 64rem);
 
+  position: relative;
   display: flex;
   flex: 1;
+  width: calc(100% + var(--sidebar-width));
+  margin-left: calc(var(--sidebar-width) * -1);
   align-items: center;
   padding: 1rem 0;
 }
 
 /* Hides what is outside the screen on the left and right only.
    Vertically nothing is clipped, so an enlarged photo is never cut off.
-   The sidebar has exactly the page colour, so the soft fade on the left edge
-   is the only transition: no line, no band. */
+   Photos move behind the transparent sidebar and smoothly fade out. */
 .gallery-viewport {
   width: 100%;
   overflow-x: clip;
   overflow-y: visible;
   /* A mask also cuts off everything outside the element, so the element gets extra
      vertical padding (cancelled by the negative margin). An enlarged photo then has
-     room to grow. Only the left edge fades, so photos fade out near the sidebar. */
+     room to grow. Left side fades across the sidebar width for a soft transition. */
   padding-block: 25svh;
   margin-block: -25svh;
-  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 3.5rem);
-  mask-image: linear-gradient(to right, transparent 0, #000 3.5rem);
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    rgba(0, 0, 0, 0.08) calc(var(--sidebar-width) * 0.3),
+    rgba(0, 0, 0, 0.55) calc(var(--sidebar-width) * 0.75),
+    #000 calc(var(--sidebar-width) + 2.5rem),
+    #000 calc(100% - 6rem),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    rgba(0, 0, 0, 0.08) calc(var(--sidebar-width) * 0.3),
+    rgba(0, 0, 0, 0.55) calc(var(--sidebar-width) * 0.75),
+    #000 calc(var(--sidebar-width) + 2.5rem),
+    #000 calc(100% - 6rem),
+    transparent 100%
+  );
 }
 
 .gallery-track {
@@ -138,25 +155,44 @@
   width: 100%;
 }
 
-.gallery-toggle {
-  position: fixed;
-  right: 1.25rem;
-  bottom: 4.5rem;
+.gallery-arrow {
+  position: absolute;
+  top: 1.1rem;
   z-index: 30;
-  padding: 0.6rem 1rem;
-  border: 1px solid #555149;
+  width: 2.15rem;
+  height: 2.15rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(243, 240, 235, 0.22);
   border-radius: 999px;
   color: #f3f0eb;
-  background: rgba(21, 21, 23, 0.92);
+  background: rgba(21, 21, 23, 0.38);
   font: inherit;
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
+  font-size: 1rem;
+  line-height: 1;
   cursor: pointer;
-  transition: border-color 200ms ease;
+  transition:
+    background-color 220ms ease,
+    border-color 220ms ease,
+    transform 220ms ease;
 }
 
-.gallery-toggle:hover {
-  border-color: #d0b189;
+.gallery-arrow:hover,
+.gallery-arrow:focus-visible {
+  border-color: rgba(208, 177, 137, 0.8);
+  background: rgba(21, 21, 23, 0.55);
+}
+
+.gallery-arrow:active {
+  transform: scale(0.97);
+}
+
+.gallery-arrow-left {
+  left: calc(var(--sidebar-width) + 0.9rem);
+}
+
+.gallery-arrow-right {
+  right: 1rem;
 }
 
 /* No automatic movement for visitors who prefer reduced motion, and no hover on
@@ -173,7 +209,7 @@
   }
 
   .is-clone-group,
-  .gallery-toggle {
+  .gallery-arrow {
     display: none;
   }
 
@@ -192,6 +228,21 @@
 @media (max-width: 700px) {
   .moving-gallery {
     --gallery-height: clamp(22rem, calc(100svh - 12rem), 40rem);
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .gallery-viewport {
+    -webkit-mask-image: linear-gradient(to right, transparent 0, #000 4.5rem, #000 calc(100% - 4.5rem), transparent 100%);
+    mask-image: linear-gradient(to right, transparent 0, #000 4.5rem, #000 calc(100% - 4.5rem), transparent 100%);
+  }
+
+  .gallery-arrow-left {
+    left: 0.75rem;
+  }
+
+  .gallery-arrow-right {
+    right: 0.75rem;
   }
 }
 

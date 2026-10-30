@@ -10,20 +10,17 @@ import { useGalleryMotion } from '../hooks/useGalleryMotion'
 // fill = how much of the gallery height the column uses, align = where it sits.
 const collageColumns = [
   { ids: [4], fill: 1, align: 'center' },
-  { ids: [2, 3], fill: 0.9, align: 'flex-start' },
-  { ids: [1, 5], fill: 0.96, align: 'flex-end' },
-  { ids: [8, 10], fill: 0.84, align: 'center' },
-  { ids: [6], fill: 0.92, align: 'flex-start' },
+  { ids: [2, 3], fill: 1, align: 'center' },
+  { ids: [1, 5, 10], fill: 1, align: 'center' },
+  { ids: [8, 9], fill: 1, align: 'center' },
+  { ids: [6], fill: 1, align: 'center' },
   { ids: [7, 11], fill: 1, align: 'center' },
-  { ids: [9, 12], fill: 0.88, align: 'flex-end' },
-  { ids: [13], fill: 0.97, align: 'flex-start' },
-  { ids: [14, 15], fill: 0.85, align: 'center' },
-  { ids: [16, 17], fill: 0.94, align: 'flex-end' },
-  { ids: [18], fill: 0.9, align: 'center' },
-  { ids: [19, 20], fill: 1, align: 'flex-start' },
-  { ids: [22], fill: 0.95, align: 'flex-end' },
-  { ids: [21, 23], fill: 0.86, align: 'center' },
-  { ids: [24], fill: 0.93, align: 'flex-start' },
+  { ids: [12, 15, 19], fill: 1, align: 'center' },
+  { ids: [13], fill: 1, align: 'center' },
+  { ids: [14, 16], fill: 1, align: 'center' },
+  { ids: [17, 18], fill: 1, align: 'center' },
+  { ids: [20, 21, 24], fill: 1, align: 'center' },
+  { ids: [22, 23], fill: 1, align: 'center' },
 ]
 
 // One column. Its width is calculated in CSS so that the stacked photos together fill
@@ -52,15 +49,9 @@ function CollageColumn({ column, photos, isClone, cardProps }) {
 }
 
 function MovingGallery({ photos }) {
-  const { viewportRef, trackRef, groupRef, setPauseReason, setMousePosition, revealElement } =
+  const { viewportRef, trackRef, groupRef, setPauseReason, setDirectionAndNudge, revealElement } =
     useGalleryMotion()
-  const [isPausedByUser, setIsPausedByUser] = useState(false)
   const [openPhoto, setOpenPhoto] = useState(null)
-
-  function handleToggle() {
-    setPauseReason('user', !isPausedByUser)
-    setIsPausedByUser(!isPausedByUser)
-  }
 
   function handleOpen(photo) {
     setPauseReason('viewer', true)
@@ -90,17 +81,17 @@ function MovingGallery({ photos }) {
     }
   }
 
-  // The horizontal mouse position controls the speed (the hook does the maths).
-  function handlePointerMove(event) {
-    if (event.pointerType !== 'mouse') {
-      return
-    }
-    const box = event.currentTarget.getBoundingClientRect()
-    setMousePosition((event.clientX - box.left) / box.width)
+  function handleMoveLeft() {
+    setDirectionAndNudge(1)
+  }
+
+  function handleMoveRight() {
+    setDirectionAndNudge(-1)
   }
 
   const cardProps = {
-    onKeyboardFocus: handleKeyboardFocus,    onOpen: handleOpen,
+    onKeyboardFocus: handleKeyboardFocus,
+    onOpen: handleOpen,
   }
 
   // The track holds two identical groups. It moves one group to the left and then
@@ -112,20 +103,23 @@ function MovingGallery({ photos }) {
     <section className="moving-gallery" aria-label="Photo gallery">
       <button
         type="button"
-        className="gallery-toggle"
-        aria-pressed={isPausedByUser}
-        onClick={handleToggle}
+        className="gallery-arrow gallery-arrow-left"
+        aria-label="Move gallery left"
+        onClick={handleMoveLeft}
       >
-        {isPausedByUser ? 'Play gallery' : 'Pause gallery'}
+        {'\u2190'}
       </button>
 
-      <div
-        ref={viewportRef}
-        className="gallery-viewport"
-        onPointerMove={handlePointerMove}
-        onPointerLeave={() => setMousePosition(null)}
-        onBlur={handleBlur}
+      <button
+        type="button"
+        className="gallery-arrow gallery-arrow-right"
+        aria-label="Move gallery right"
+        onClick={handleMoveRight}
       >
+        {'\u2192'}
+      </button>
+
+      <div ref={viewportRef} className="gallery-viewport" onBlur={handleBlur}>
         <div ref={trackRef} className="gallery-track">
           {[0, 1].map((group) => (
             <div
