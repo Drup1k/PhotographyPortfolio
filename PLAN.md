@@ -104,9 +104,40 @@ flowchart TB
 - Hover (na ongeveer 200 ms) of toetsenbordfocus vergroot een foto in verhouding tot de getoonde grootte: grote foto's weinig (ca. 1,05×), middelgrote matig, kleine foto's sterk (tot ca. 1,5×). Een vergrote foto blijft volledig binnen het scherm en buiten de zijbalk. Toetsenbordfocus of geopende lightbox pauzeert de beweging; klik/tap opent de lightbox.
 - Bij `prefers-reduced-motion` en op touchapparaten is er geen automatische beweging, geen hover en geen pijlknoppen, maar een rustige, horizontaal scrollbare weergave.
 - De pagina's Home, Portfolio, About Me en Contact hebben elk een eigen route. Services, Booking en Privacy blijven Under Construction.
-- Foto's komen uit één gegevensbestand met placeholders; echte lokale foto's en alt-teksten vervangen die later.
+- Foto's komen voorlopig uit één gegevensbestand met placeholders. De volgende lokale ontwikkelfase maakt het aantal foto's dynamisch, met automatisch bepaalde afmetingen en eigen fotobestanden.
 - Onderaan elke pagina staat een footer met scheidingslijn: links "Services, Booking and Privacy: Under Construction", rechts "Angelique Vi.".
 - Bij publicatie moet de hosting onbekende paden doorsturen naar `index.html`, zodat een directe refresh van bijvoorbeeld `/portfolio` werkt.
+
+---
+
+## Volgende ontwikkelfase: dynamische foto's (eerst lokaal)
+
+**Doel:** de vaste set van 24 placeholders vervangen door een galerij die elk aantal foto's aankan. Dit is eerst een **lokaal prototype**, niet meteen een publiek admin- of uploadsysteem.
+
+### Functionaliteit
+
+- Eén gedeelde, dynamische fotocollectie voor Home en Portfolio; geen vaste foto-ID's, handmatig vastgelegde kolomgroepen of maximum van 24 foto's.
+- In de lokale ontwikkelomgeving foto's toevoegen via een eenvoudige knop/bestandskiezer, en bestaande foto's verwijderen of vervangen. Nieuwe foto's verschijnen direct zonder handmatig photos.js aan te passen.
+- Foto's (en beschrijvingen) voor dit prototype lokaal in de **browser via IndexedDB** bewaren, zodat ze na verversen blijven bestaan. Duidelijk vermelden: browsergebonden testopslag, **geen** opslag op GitHub of de server, geen synchronisatie en geen gegarandeerde back-up.
+- De natuurlijke breedte/hoogte van elke afbeelding bepalen bij het toevoegen. Fotokaarten passen hun verhouding automatisch aan; extreme verhoudingen krijgen verstandige groottebeperkingen. De grote fotoviewer toont de afbeelding zonder onnodig afsnijden.
+- De Home-collage dynamisch en evenwichtig herschikken na toevoegen/verwijderen, met kleine tussenruimtes en zonder grote zwarte gaten; beweging, pijltjes en lightbox blijven werken.
+- Portfolio gebruikt dezelfde actuele collectie, in een responsieve masonry-weergave. De bestaande gekleurde placeholders zijn uitsluitend demo/fallback wanneer nog geen echte foto's aanwezig zijn, niet 24 verplichte vaste plekken.
+- Basiscontroles bij lokale invoer: ondersteunde afbeeldingstypes, bestandsgrootte, foutmeldingen en bewerkbare alt-beschrijving; rekening houden met prestaties bij veel of grote foto's.
+- De lokale bewerkknoppen alleen in ontwikkelmodus tonen. **Geen nep-adminbeveiliging**: echte accounts, autorisatie en publieke uploads behoren tot de latere backendfase.
+
+### Acceptatiecriteria
+
+- Voeg 1, vervolgens 5 en daarna meerdere foto's toe: beide galerijen tonen de juiste hoeveelheid en verhoudingen zonder vaste slots.
+- Verwijder 3 foto's en vervang er 1: de collectie, indeling en viewer worden direct bijgewerkt.
+- Ververs de lokale browser: de toegevoegde foto's blijven beschikbaar zolang de browseropslag behouden is.
+- Controleer een lege collectie, ongeldige/grote bestanden, desktop en mobiel, galerijbeweging en vorige/volgende in de viewer.
+- Run lint en productiebuild; begrijp en controleer gewijzigde code vóór commit.
+
+### Later: echte beheeromgeving
+
+- Beveiligde adminlogin en server-side upload-, wijzig- en verwijderrechten via ASP.NET Core.
+- Duurzame foto-opslag op de server of object storage; fotometadata in SQL. Niet afhankelijk van browseropslag.
+- Veilige uploadverwerking, beeldoptimalisatie en privacy/publicatierechten. Deze latere fase pas starten na validatie van het lokale prototype.
 
 ---
 
