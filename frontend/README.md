@@ -1,16 +1,39 @@
-# React + Vite
+# Angelique Vi. — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + JavaScript + Vite frontend van het fotografieportfolio. Algemene projectstatus en toekomstplannen staan in [../PLAN.md](../PLAN.md).
 
-Currently, two official plugins are available:
+## Starten
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Vanuit deze map (`frontend/`):
 
-## React Compiler
+```powershell
+npm.cmd ci
+npm.cmd run dev
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+De lokale Vite-server vermeldt het adres (meestal `http://localhost:5173/`).
 
-## Expanding the ESLint configuration
+## Controles
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```powershell
+npm.cmd run lint
+npm.cmd run build
+npm.cmd audit
+```
+
+Gebruik `npm` in plaats van `npm.cmd` op een systeem waar `npm.cmd` niet bestaat.
+
+## Opbouw
+
+- `src/pages/`: Home, Portfolio, About Me, Contact en placeholderpagina's.
+- `src/components/MovingGallery.jsx`, `PhotoCard.jsx`, `PhotoViewer.jsx`: bewegende galerij en fotoviewer.
+- `src/components/PhotoManager.jsx`: lokale foto toevoegen, vervangen en verwijderen, alleen zichtbaar in Vite-ontwikkelmodus op Portfolio.
+- `src/hooks/usePhotoLibrary.js` en `src/lib/photoStorage.js`: gedeelde fotoverzameling en IndexedDB-opslag.
+- `src/lib/collageLayout.js` en `src/lib/imageFiles.js`: dynamische collage, afbeeldingsvalidatie, fotoverhoudingen en thumbnails.
+- `src/data/placeholderPhotos.js`: 12 demo-placeholders zolang geen echte foto's zijn toegevoegd.
+
+## Belangrijke beperkingen
+
+Foto's die je via de UI toevoegt, worden **alleen in de lokale browser** bewaard. Een andere laptop of browser krijgt die foto's niet via Git. Wis je browsergegevens niet zonder de originele beelden elders te bewaren. Het is geen beveiligd adminsysteem; een echte backend en login zijn toekomstig werk.
+
+Voor GitHub Pages bestaat een conditionele `base`-instelling in `vite.config.js`. Routing bij rechtstreeks verversen van subpagina's vereist een geschikte hostingfallback.
