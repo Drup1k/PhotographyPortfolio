@@ -8,6 +8,12 @@ Always use PLAN.md as the main source of truth for the project requirements and 
 
 Do not implement functionality that conflicts with PLAN.md.
 
+## Language policy
+
+Use **English** for all repository documentation, code comments, naming, development instructions, and current user-facing website text.
+
+The future website will offer an English/Dutch (EN/NL) language selector, as specified in PLAN.md. Do not introduce Dutch copy or localization infrastructure until that feature is requested. Once implemented, keep source code and documentation in English and store Dutch visitor-facing translations separately.
+
 ## Technology stack
 
 Use the following technology stack for this project:
