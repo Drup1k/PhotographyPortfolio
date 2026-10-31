@@ -1,75 +1,59 @@
-# Photography Portfolio
+# Angelique Vi. — Photography Portfolio
 
-A modern photography portfolio website designed to showcase the work, style and personality of a photographer.
+Een fotografieportfolio in ontwikkeling, met een donkere, fotografiegerichte React-website.
 
-The project is being developed as a practical learning project using **C#, ASP.NET Core, React, SQL and GitHub Copilot**.
+## Huidige stand
 
-## Current Goal
+- **Home:** automatisch bewegende fotocollage met richtingpijlen, hover en grote fotoviewer.
+- **Portfolio:** responsieve masonry-galerij en in ontwikkelmodus hulpmiddelen voor lokale foto's.
+- **About Me / Contact:** bestaande pagina's met tijdelijke inhoud.
+- **Services / Booking / Privacy:** nog niet geïmplementeerd (Under Construction).
+- **Foto's:** dynamische collectie in de browser via IndexedDB. In een lege bibliotheek verschijnen demo-placeholders. Foto's worden niet op GitHub of een server opgeslagen.
 
-The first version of the website will focus on:
+Dit is een **lokaal prototype**, geen openbare adminfunctie. De React-frontend is gebouwd; **C#/ASP.NET Core en SQL zijn toekomstig werk**. Zie [PLAN.md](PLAN.md) voor huidige functionaliteit, controles en vervolgstappen.
 
-- Home
-- Portfolio
-- About Me
-- Contact
-- Responsive photography presentation
-- Social media integration
+## Stack
 
-The following sections are planned but currently under construction:
+- React, JavaScript, Vite en CSS
+- Browser IndexedDB voor lokale fototests
+- GitHub Copilot met projectinstructies onder `.github/`
+- Later: C# / ASP.NET Core, SQL en beveiligd foto-/reservatiebeheer
 
-- Services
-- Booking / Reservation
-- Privacy
+## Lokaal starten
 
-## Technology Stack
+Node.js en npm zijn nodig. Voer vanuit de repository-hoofdmap uit:
 
-### Backend
-- C#
-- ASP.NET Core
+```powershell
+cd frontend
+npm.cmd ci
+npm.cmd run dev
+```
 
-### Frontend
-- React
-- JavaScript
+Open het lokale adres dat Vite toont (meestal `http://localhost:5173/`).
 
-### Database
-- SQL
+Controles vanuit `frontend`:
 
-### AI-assisted Development
-- GitHub Copilot
-- Markdown instructions
-- Agent skills
+```powershell
+npm.cmd run lint
+npm.cmd run build
+npm.cmd audit
+```
 
-## Development Approach
+Op macOS/Linux kan `npm` in plaats van `npm.cmd` gebruikt worden.
 
-AI-assisted development is used throughout the project:
+## Ontwikkelworkflow
 
 ```mermaid
 flowchart TB
-    IDEA["💡 Idea"] --> PLAN["📋 Plan"]
-    PLAN --> AI["🤖 AI Setup"]
-    AI --> BUILD["💻 Build"]
-    BUILD --> CHECK["✅ Review & Test"]
-    CHECK --> COMMIT["📦 Git Commit"]
+    IDEA["💡 Idee"] --> PLAN["📋 PLAN.md"]
+    PLAN --> AI["🤖 Copilot + instructies"]
+    AI --> BUILD["💻 Ontwikkelen"]
+    BUILD --> CHECK["✅ Review, lint/build & browsertest"]
+    CHECK --> COMMIT["📦 Git commit"]
 ```
 
-## Future Ideas
-
-Possible future extensions include:
-- Photography categories
-- Responsive image galleries
-- Photoshoot services
-- Online booking
-- Availability management
-- Customer information
-- SQL database integration
-- Email confirmations
-- Photographer administration area
-- Portfolio management
-- Uploading and managing photography
-- Improved booking workflow
+**Let op:** foto's uit de lokale beheerinterface blijven alleen in de IndexedDB-opslag van de gebruikte browser. Ze zijn niet gedeeld met je tweede computer. Bewaar originele foto's zelf apart.
 
 ## Status
 
-🚧 **Work in progress**
-
-The project is currently in the planning and Copilot configuration phase.
+🚧 Actief in ontwikkeling. Niet alle interacties en apparaten zijn volledig getest; zie de open controlepunten in [PLAN.md](PLAN.md).
