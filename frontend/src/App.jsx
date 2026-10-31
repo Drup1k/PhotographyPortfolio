@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import Sidebar from './components/Sidebar'
 import Footer from './components/Footer'
 import { usePath } from './routing/usePath'
+import { usePhotoLibrary } from './hooks/usePhotoLibrary'
 import HomePage from './pages/HomePage'
 import PortfolioPage from './pages/PortfolioPage'
 import AboutPage from './pages/AboutPage'
@@ -23,12 +24,12 @@ const pageTitles = {
   '/privacy': 'Privacy',
 }
 
-function renderPage(path) {
+function renderPage(path, library) {
   switch (path) {
     case '/':
-      return <HomePage />
+      return <HomePage library={library} />
     case '/portfolio':
-      return <PortfolioPage />
+      return <PortfolioPage library={library} />
     case '/about':
       return <AboutPage />
     case '/contact':
@@ -44,6 +45,7 @@ function renderPage(path) {
 
 function App() {
   const path = usePath()
+  const library = usePhotoLibrary()
   const isHome = path === '/'
 
   useEffect(() => {
@@ -58,7 +60,7 @@ function App() {
       <Sidebar currentPath={path} />
 
       <main id="main-content" className={isHome ? 'main-home' : 'main-page'}>
-        {renderPage(path)}
+        {renderPage(path, library)}
         <Footer />
       </main>
     </div>

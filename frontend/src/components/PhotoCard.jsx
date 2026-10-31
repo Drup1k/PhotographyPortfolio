@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { shapeRatios } from '../data/photos'
+import { getCardRatio } from '../lib/collageLayout'
 
 const ENLARGE_DELAY = 200
 
@@ -113,7 +113,13 @@ function PhotoCard({
   }
 
   const content = photo.src ? (
-    <img src={photo.src} alt={isInteractive ? '' : photo.alt} draggable="false" />
+    <img
+      src={photo.thumbSrc || photo.src}
+      alt={isInteractive ? '' : photo.alt}
+      loading="lazy"
+      decoding="async"
+      draggable="false"
+    />
   ) : (
     <span className={`photo-placeholder tone-${photo.tone}`}>
       <span>{photo.title}</span>
@@ -124,9 +130,8 @@ function PhotoCard({
     <figure
       ref={cardRef}
       className={classNames.join(' ')}
-      style={{ '--ratio': shapeRatios[photo.shape] }}
-      onPointerEnter={isInteractive ? handlePointerEnter : undefined}
-      onPointerLeave={isInteractive ? handlePointerLeave : undefined}
+      style={{ '--ratio': getCardRatio(photo) }}
+      onPointerEnter={isInteractive ? handlePointerEnter : undefined}      onPointerLeave={isInteractive ? handlePointerLeave : undefined}
     >
       <div ref={zoomRef} className="photo-zoom">
         {isInteractive ? (

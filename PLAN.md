@@ -209,3 +209,5 @@ Controleer toepasselijke Belgische/EU-regels opnieuw wanneer de functie wordt ge
 - E-mailbevestigingen
 - Beheergedeelte voor de fotograaf
 - Optioneel: interactieve 3D-fotoglobe (nog niet gepland)
+- Hernoem portofolio in "gallery" or  other name 
+

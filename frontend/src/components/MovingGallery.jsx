@@ -1,43 +1,18 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import PhotoCard from './PhotoCard'
 import PhotoViewer from './PhotoViewer'
-import { shapeRatios } from '../data/photos'
+import { buildCollage } from '../lib/collageLayout'
 import { useGalleryMotion } from '../hooks/useGalleryMotion'
 
-// Columns of photo ids (see photos.js). fill = share of the gallery height, align = position.
-const collageColumns = [
-  { ids: [4], fill: 1, align: 'center' },
-  { ids: [2, 3], fill: 1, align: 'center' },
-  { ids: [1, 5, 10], fill: 1, align: 'center' },
-  { ids: [8, 9], fill: 1, align: 'center' },
-  { ids: [6], fill: 1, align: 'center' },
-  { ids: [7, 11], fill: 1, align: 'center' },
-  { ids: [12, 15, 19], fill: 1, align: 'center' },
-  { ids: [13], fill: 1, align: 'center' },
-  { ids: [14, 16], fill: 1, align: 'center' },
-  { ids: [17, 18], fill: 1, align: 'center' },
-  { ids: [20, 21, 24], fill: 1, align: 'center' },
-  { ids: [22, 23], fill: 1, align: 'center' },
-]
-
 // One column; its width is set in CSS so the stacked photos fill the column height.
-function CollageColumn({ column, photos, isClone, cardProps }) {
-  const columnPhotos = column.ids
-    .map((id) => photos.find((photo) => photo.id === id))
-    .filter(Boolean)
-  const inverseSum = columnPhotos.reduce((sum, photo) => sum + 1 / shapeRatios[photo.shape], 0)
-
+function CollageColumn({ column, isClone, cardProps }) {
   return (
     <div
       className="collage-column"
-      style={{
-        '--photo-count': columnPhotos.length,
-        '--inverse-sum': inverseSum,
-        '--fill': column.fill,
-        alignSelf: column.align,
-      }}
+      aria-hidden={isClone ? 'true' : undefined}
+      style={{ '--photo-count': column.photos.length, '--inverse-sum': column.inverseSum, '--fill': 1 }}
     >
-      {columnPhotos.map((photo) => (
+      {column.photos.map((photo) => (
         <PhotoCard key={photo.id} photo={photo} isClone={isClone} isInteractive {...cardProps} />
       ))}
     </div>
@@ -48,6 +23,7 @@ function MovingGallery({ photos }) {
   const { viewportRef, trackRef, groupRef, setPauseReason, setDirectionAndNudge, revealElement } =
     useGalleryMotion()
   const [openPhoto, setOpenPhoto] = useState(null)
+  const { columns, repeats } = useMemo(() => buildCollage(photos), [photos])
 
   function handleOpen(photo) {
     setPauseReason('viewer', true)
@@ -120,15 +96,16 @@ function MovingGallery({ photos }) {
               className={group === 1 ? 'gallery-group is-clone-group' : 'gallery-group'}
               aria-hidden={group === 1 ? 'true' : undefined}
             >
-              {collageColumns.map((column, index) => (
-                <CollageColumn
-                  key={index}
-                  column={column}
-                  photos={photos}
-                  isClone={group === 1}
-                  cardProps={cardProps}
-                />
-              ))}
+              {Array.from({ length: repeats }, (_, repeat) =>
+                columns.map((column, index) => (
+                  <CollageColumn
+                    key={`${repeat}-${index}`}
+                    column={column}
+                    isClone={group === 1 || repeat > 0}
+                    cardProps={cardProps}
+                  />
+                )),
+              )}
             </div>
           ))}
         </div>

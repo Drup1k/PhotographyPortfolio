@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { shapeRatios } from '../data/photos'
 
 // Duration of the animations in milliseconds (keep in sync with Gallery.css).
 const CLOSE_TIME = 250
@@ -119,7 +118,7 @@ function PhotoViewer({ photo, onClose, onPrevious, onNext }) {
       onClick={handleBackdropClick}
       onKeyDown={handleKeyDown}
     >
-      <div className="photo-viewer-frame" style={{ '--ratio': shapeRatios[photo.shape] }}>
+      <div className="photo-viewer-frame" style={{ '--ratio': photo.ratio }}>
         {photo.src ? (
           <img src={photo.src} alt={photo.alt} />
         ) : (

@@ -1,12 +1,14 @@
 import MovingGallery from '../components/MovingGallery'
-import { photos } from '../data/photos'
+import { placeholderPhotos } from '../data/placeholderPhotos'
 
-function HomePage() {
+function HomePage({ library }) {
+  const photos = library.photos.length > 0 ? library.photos : placeholderPhotos
+
   return (
-    <>
-      <h1 className="visually-hidden">Angelique Vi. Photography Portfolio</h1>
-      <MovingGallery photos={photos} />
-    </>
+	<>
+	  <h1 className="visually-hidden">Angelique Vi. Photography Portfolio</h1>
+	  <MovingGallery photos={photos} />
+	</>
   )
 }
 
